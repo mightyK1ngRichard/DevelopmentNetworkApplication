@@ -1,26 +1,37 @@
 package app
 
 import (
+	"05-lab-01-DimaPermyakov/config"
+	"05-lab-01-DimaPermyakov/internal/app/handler"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
 type Application struct {
-	//Config     *config.Config
-	Logger *logrus.Logger
-	Router *gin.Engine
+	Config  *config.Config
+	Logger  *logrus.Logger
+	Router  *gin.Engine
+	Handler *handler.Handler
 	//Repository *repository.Repository
 }
 
-func NewApp(r *gin.Engine, l *logrus.Logger) *Application {
+func NewApp(c *config.Config, r *gin.Engine, l *logrus.Logger, h *handler.Handler) *Application {
 	return &Application{
-		Logger: l,
-		Router: r,
+		Config:  c,
+		Logger:  l,
+		Router:  r,
+		Handler: h,
 	}
 }
 
 func (a *Application) RunApp() {
-	a.Logger.Info("Start Application")
+	a.Logger.Info("Server start up")
+	a.Handler.RegisterHandler(a.Router)
 
-	a.Logger.Info("Terminate Application")
+	serverAddress := fmt.Sprintf("%s:%d", a.Config.ServiceHost, a.Config.ServicePort)
+	if err := a.Router.Run(serverAddress); err != nil {
+		a.Logger.Fatalln(err)
+	}
+	a.Logger.Info("Server down")
 }
