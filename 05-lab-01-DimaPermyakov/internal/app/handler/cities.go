@@ -24,5 +24,6 @@ func (h *Handler) CitiesHTML(ctx *gin.Context) {
 			{ID: 6, Name: "Dima 7", ImageURL: "http://localhost:7070/static/img/image7.jpg"},
 		},
 	}
+
 	ctx.HTML(http.StatusOK, "index.tmpl", data)
 }

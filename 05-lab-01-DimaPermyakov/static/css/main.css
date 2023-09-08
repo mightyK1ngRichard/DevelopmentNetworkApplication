@@ -1,0 +1,16 @@
+body {
+    background-color: #18181B;
+}
+
+.card:hover .photo {
+    filter: brightness(0.7);
+}
+
+
+.card {
+    background-color: #18181B;
+}
+
+.container-card {
+    width: 100%;
+}
