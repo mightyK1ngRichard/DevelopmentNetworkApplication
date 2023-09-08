@@ -30,13 +30,13 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid black;
+    border: 2px solid rgba(255, 255, 255, 0.66);
+    background-color: rgba(74, 0, 152, 0.84);
 }
 
 .title {
     text-align: center;
-    color: black;
+    color: #ffffff;
     font-family: Arial, sans-serif;
     font-size: 30px;
 }
-

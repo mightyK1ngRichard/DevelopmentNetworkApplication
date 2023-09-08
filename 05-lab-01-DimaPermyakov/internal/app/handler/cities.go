@@ -4,6 +4,7 @@ import (
 	"05-lab-01-DimaPermyakov/internal/app/ds"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 func (h *Handler) CitiesList(ctx *gin.Context) {
@@ -25,5 +26,23 @@ func (h *Handler) CitiesHTML(ctx *gin.Context) {
 		},
 	}
 
-	ctx.HTML(http.StatusOK, "index.tmpl", data)
+	if idStr := ctx.Query("city"); idStr != "" {
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			return
+		}
+		var currentCity ds.City
+		for _, city := range data.Cities {
+			if uint(id) == city.ID {
+				currentCity = city
+				break
+			}
+		}
+		if currentCity != (ds.City{}) {
+			ctx.HTML(http.StatusOK, "city.card.tmpl", currentCity)
+		}
+		return
+	}
+
+	ctx.HTML(http.StatusOK, "cities.tmpl", data)
 }

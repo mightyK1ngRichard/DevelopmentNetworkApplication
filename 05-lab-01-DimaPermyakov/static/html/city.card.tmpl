@@ -1,0 +1,34 @@
+{{ template "base.tmpl" }}
+<body>
+<div class="city-card-body">
+<div class="card-container">
+    <link rel="stylesheet" type="text/css" href="static/css/city_card.css">
+    <span class="pro">PRO</span>
+    <img class="round" src="{{ .ImageURL }}" style="width: 150px; height: 150px; object-fit: cover;" alt="user"/>
+    <h3>{{ .Name }}</h3>
+    <h6>New York</h6>
+    <p>User interface designer and <br/> front-end developer</p>
+    <div class="buttons">
+        <button class="primary">
+            Message
+        </button>
+        <button class="primary ghost">
+            Following
+        </button>
+    </div>
+    <div class="skills">
+        <h6>Skills</h6>
+        <ul>
+            <li>UI / UX</li>
+            <li>Front End Development</li>
+            <li>HTML</li>
+            <li>CSS</li>
+            <li>JavaScript</li>
+            <li>React</li>
+            <li>Node</li>
+        </ul>
+    </div>
+</div>
+</div>
+</body>
+</html>
