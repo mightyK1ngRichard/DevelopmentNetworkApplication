@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-
 	logger := logrus.New()
 	router := gin.Default()
 	conf, err := config.NewConfig(logger)
