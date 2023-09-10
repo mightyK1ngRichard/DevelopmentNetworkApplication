@@ -3,13 +3,12 @@ package dsn
 import (
 	"fmt"
 	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
 	"os"
 )
 
-func FromEnv(logger *logrus.Logger) string {
+func FromEnv() (string, error) {
 	if err := godotenv.Load(); err != nil {
-		logger.Fatalln(err)
+		return "", err
 	}
 
 	host, existHost := os.LookupEnv("DB_HOST")
@@ -18,8 +17,8 @@ func FromEnv(logger *logrus.Logger) string {
 	pass, existPass := os.LookupEnv("DB_PASS")
 	dbname, existName := os.LookupEnv("DB_NAME")
 	if !existHost || !existPort || !existUser || !existPass || !existName {
-		return ""
+		return "", fmt.Errorf("existHost or existPort or existUser or existPass or existName is Empty")
 	}
 
-	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, pass, dbname)
+	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, pass, dbname), nil
 }

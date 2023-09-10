@@ -1,6 +1,6 @@
 {{ template "base.tmpl" }}
 {{ with index .Cities 0 }}
-<title>{{ .Name }}</title>
+<title>{{ .CityName }}</title>
 </head>
 <body>
 <div class="city-card-body">
@@ -8,8 +8,8 @@
         <link rel="stylesheet" type="text/css" href="static/css/city_card.css">
         <span class="pro">City</span>
         <img class="round" src="{{ .ImageURL }}" style="width: 150px; height: 150px; object-fit: cover;" alt="user"/>
-        <h3>{{ .Name }}</h3>
-        <h6>Площадь: {{ .Area }} </h6>
+        <h3>{{ .CityName }}</h3>
+        <h6>Статус: {{ .Status }} </h6>
         <p>{{ .Description }}</p>
         <div class="buttons">
             <button class="primary">
@@ -26,7 +26,7 @@
             <ul>
                 {{ range .LookAlso }}
                     {{ $city := . }}
-                    <li><a href="/cities?city={{ $city.ID }}">{{ $city.Name }}</a></li>
+                    <li><a href="/cities?city={{ $city.ID }}">{{ $city.CityName }}</a></li>
                 {{ else }}
                     <li>Нет данных для отображения</li>
                 {{ end }}
