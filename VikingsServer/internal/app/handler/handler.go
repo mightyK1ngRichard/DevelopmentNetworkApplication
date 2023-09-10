@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"VikingsServer/internal/app/repository"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,10 +13,13 @@ const (
 )
 
 type Handler struct {
+	Repository *repository.Repository
 }
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(r *repository.Repository) *Handler {
+	return &Handler{
+		Repository: r,
+	}
 }
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {

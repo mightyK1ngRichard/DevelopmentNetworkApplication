@@ -13,7 +13,6 @@ type Application struct {
 	Logger  *logrus.Logger
 	Router  *gin.Engine
 	Handler *handler.Handler
-	//Repository *repository.Repository
 }
 
 func NewApp(c *config.Config, r *gin.Engine, l *logrus.Logger, h *handler.Handler) *Application {

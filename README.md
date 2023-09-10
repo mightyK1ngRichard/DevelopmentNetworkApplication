@@ -7,6 +7,6 @@
 ## Backend:
 
 - [X] [05-lab-01-DimaPermyakov](https://github.com/mightyK1ngRichard/DevelopmentNetworkApplicationBackend/tree/backend/lab01/VikingsServer)
-- [ ] [05-lab-02-DimaPermyakov]()
+- [ ] [05-lab-02-DimaPermyakov](https://github.com/mightyK1ngRichard/DevelopmentNetworkApplicationBackend/tree/backend/lab02/VikingsServer)
 - [ ] [05-lab-03-DimaPermyakov]()
 - [ ] [05-lab-04-DimaPermyakov]()

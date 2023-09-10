@@ -2,13 +2,13 @@ package ds
 
 type City struct {
 	ID          uint   `json:"id"`
-	Name        string `json:"name"`
-	ImageURL    string `json:"image_url"`
+	CityName    string `json:"cityName"`
 	Description string `json:"description"`
-	Area        string `json:"area"`
+	Status      string `json:"status"`
+	ImageURL    string `json:"imageURL"`
 }
 
 type CityViewData struct {
-	Cities   []City
-	LookAlso []City
+	Cities   *[]City
+	LookAlso *[]City
 }
