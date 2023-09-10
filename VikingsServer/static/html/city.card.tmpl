@@ -11,9 +11,17 @@
         <h3>{{ .CityName }}</h3>
         <h6>Статус: {{ .Status }} </h6>
         <p>{{ .Description }}</p>
+        {{ if eq .Status "существует" }}
+        <form action="/cities" method="POST" style="position: absolute; top: 10px; right: 10px;">
+            <input type="hidden" name="cityID" value="{{ .ID }}">
+            <button class="primary" type="submit" style="background: transparent; border: none;">
+                <img src="/static/img/deleteTrash.png" alt="" style="width: 34px; height: 34px;">
+            </button>
+        </form>
+        {{ end }}
         <div class="buttons">
             <button class="primary">
-                Message
+                Придумать
             </button>
             <button class="primary ghost">
                 Записаться

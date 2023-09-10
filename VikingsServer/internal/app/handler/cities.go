@@ -98,3 +98,15 @@ func (h *Handler) CitiesDelete(ctx *gin.Context) {
 		"success": fmt.Sprintf("deleted city with id: %d", request.ID),
 	})
 }
+
+func (h *Handler) DeleteCityWithStatus(ctx *gin.Context) {
+	id := ctx.PostForm("cityID")
+
+	if err := h.Repository.DeleteCityWithStatus(id); err != nil {
+		h.Logger.Error("couldn't delete city")
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete city"})
+		return
+	}
+	h.Logger.Info("city with id=" + id + "update success")
+	ctx.Redirect(http.StatusSeeOther, citiesHTML+"?city="+id)
+}

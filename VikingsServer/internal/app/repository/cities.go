@@ -39,16 +39,19 @@ func (r *Repository) CitiesList() (*[]ds.City, error) {
 
 func (r *Repository) DeleteCity(id int) error {
 	sqlCommand := `DELETE FROM cities WHERE id=$1;`
-	res, err := r.db.Exec(sqlCommand, id)
+	_, err := r.db.Exec(sqlCommand, id)
 	if err != nil {
 		r.logger.Error(err)
 		return err
 	}
-	count, err2 := res.RowsAffected()
-	if err2 != nil {
-		r.logger.Error(err2)
-		return err2
+	return nil
+}
+
+func (r *Repository) DeleteCityWithStatus(id string) error {
+	sqlCommand := `UPDATE cities SET status=2 WHERE id = $1;`
+	_, err := r.db.Exec(sqlCommand, id)
+	if err != nil {
+		return err
 	}
-	r.logger.Infof("Delete: %d", count)
 	return nil
 }
