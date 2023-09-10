@@ -6,12 +6,12 @@ services:
       - type: volume
         source: postgresdb-data
         target: /var/lib/postgresql/data
-    ports: # порты
-      - "2727:5432"
+    ports:
+      - "${DB_PORT}:5432"
     environment:
-      POSTGRES_USER: mightyK1ngRichard
-      POSTGRES_DB: vikings
-      POSTGRES_PASSWORD: vikings
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASS}
 
 volumes:
   postgresdb-data:
