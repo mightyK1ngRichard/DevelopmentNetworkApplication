@@ -52,3 +52,33 @@
 .card:hover .photo {
     filter: brightness(0.7);
 }
+
+.deleted-trash {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 30px;
+    height: 30px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.card:hover .deleted-trash {
+    opacity: 1;
+}
+
+.card:hover .circle {
+    opacity: 1;
+}
+
+.circle {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 36px;
+    height: 36px;
+    background-color: white;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}

@@ -36,3 +36,19 @@ func (r *Repository) CitiesList() (*[]ds.City, error) {
 
 	return &cities, nil
 }
+
+func (r *Repository) DeleteCity(id int) error {
+	sqlCommand := `DELETE FROM cities WHERE id=$1;`
+	res, err := r.db.Exec(sqlCommand, id)
+	if err != nil {
+		r.logger.Error(err)
+		return err
+	}
+	count, err2 := res.RowsAffected()
+	if err2 != nil {
+		r.logger.Error(err2)
+		return err2
+	}
+	r.logger.Infof("Delete: %d", count)
+	return nil
+}

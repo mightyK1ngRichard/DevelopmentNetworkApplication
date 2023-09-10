@@ -4,13 +4,14 @@
 <body>
 <div class="card-grid">
     {{ range .Cities }}
-        <div class="card">
+        <div class="card" data-city-id="{{ .ID }}">
+            <img src="{{ .ImageURL }}" alt="Image" class="photo">
+            <div class="circle">
+                <img src="/static/img/deleteTrash.png" alt="Deleted" class="deleted-trash">
+            </div>
             <div class="container-card">
                 <div class="title">{{ .CityName }}</div>
             </div>
-            <img src="{{ .ImageURL }}"
-                 alt="Image"
-                 class="photo" id="image-{{ .ID }}">
         </div>
     {{ end }}
 </div>
@@ -24,5 +25,43 @@
             window.location.href = newURL;
         });
     });
+
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+        card.addEventListener('click', function() {
+            const cityID = this.getAttribute('data-city-id');
+            if (cityID !== null) {
+                // Вывести предупреждение с подтверждением удаления
+                const confirmDelete = confirm('Вы уверены, что хотите удалить этот город?');
+
+                if (confirmDelete) {
+                    const deleteURL = `/cities`;
+                    const requestData = { "id": parseInt(cityID) };
+
+                    fetch(deleteURL, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestData)
+                    })
+                    .then(response => {
+                        if (response.status === 200) {
+                            console.log(`Город с ID ${cityID} удален успешно.`);
+                            window.location.reload();
+                        } else {
+                            console.error(`Ошибка при удалении города с ID ${cityID}.`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Произошла ошибка при выполнении запроса:', error);
+                    });
+                }
+            } else {
+                console.error('cityID равен null.');
+            }
+        });
+    });
+
 </script>
 </html>

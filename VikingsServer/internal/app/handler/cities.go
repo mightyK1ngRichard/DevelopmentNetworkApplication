@@ -3,6 +3,7 @@ package handler
 import (
 	"VikingsServer/internal/app/ds"
 	"VikingsServer/internal/utils"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -77,4 +78,23 @@ func (h *Handler) CitiesHTML(ctx *gin.Context) {
 	}
 
 	ctx.HTML(http.StatusOK, "cities.tmpl", data)
+}
+
+func (h *Handler) CitiesDelete(ctx *gin.Context) {
+	var request struct {
+		ID int `json:"id"`
+	}
+	if err := ctx.BindJSON(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := h.Repository.DeleteCity(request.ID); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "couldn't delete the city",
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"success": fmt.Sprintf("deleted city with id: %d", request.ID),
+	})
 }
