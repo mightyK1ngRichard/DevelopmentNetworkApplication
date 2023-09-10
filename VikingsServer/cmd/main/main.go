@@ -1,7 +1,7 @@
 package main
 
 import (
-	"VikingsServer/config"
+	"VikingsServer/internal/app/config"
 	"VikingsServer/internal/app/handler"
 	app "VikingsServer/internal/app/pkg"
 	"github.com/gin-gonic/gin"
