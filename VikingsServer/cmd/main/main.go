@@ -1,7 +1,7 @@
 package main
 
 import (
-	"VikingsServer/config"
+	"VikingsServer/internal/app/config"
 	"VikingsServer/internal/app/handler"
 	app "VikingsServer/internal/app/pkg"
 	"github.com/gin-gonic/gin"
@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-
 	logger := logrus.New()
 	router := gin.Default()
 	conf, err := config.NewConfig(logger)
