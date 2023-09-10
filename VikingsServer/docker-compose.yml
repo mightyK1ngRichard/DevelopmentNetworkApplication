@@ -1,0 +1,18 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:12
+    volumes:
+      - type: volume
+        source: postgresdb-data
+        target: /var/lib/postgresql/data
+    ports: # порты
+      - "2727:5432"
+    environment:
+      POSTGRES_USER: mightyK1ngRichard
+      POSTGRES_DB: vikings
+      POSTGRES_PASSWORD: vikings
+
+volumes:
+  postgresdb-data:
+    driver: local
