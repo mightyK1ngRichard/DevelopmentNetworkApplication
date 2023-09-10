@@ -60,7 +60,10 @@ func (h *Handler) CitiesHTML(ctx *gin.Context) {
 			var lookAlso []ds.City
 			if index != -1 {
 				startIndex := index + 1
-				endIndex := utils.Min(startIndex+5, len(data.Cities)-1)
+				if startIndex >= len(data.Cities) {
+					startIndex = 0
+				}
+				endIndex := utils.Min(startIndex+5, len(data.Cities))
 				if startIndex < endIndex {
 					lookAlso = data.Cities[startIndex:endIndex]
 				} else {
