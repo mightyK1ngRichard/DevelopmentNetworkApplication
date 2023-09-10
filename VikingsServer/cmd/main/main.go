@@ -33,7 +33,7 @@ func main() {
 			logger.Errorf("Error of closing the sql connect: %s", err)
 		}
 	}(rep)
-	hand := handler.NewHandler(rep)
+	hand := handler.NewHandler(logger, rep)
 	application := app.NewApp(conf, router, logger, hand)
 	application.RunApp()
 }
