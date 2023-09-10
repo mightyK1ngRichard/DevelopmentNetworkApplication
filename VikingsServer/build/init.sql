@@ -15,10 +15,11 @@ CREATE TABLE IF NOT EXISTS HikeStatuses
 -- Таблица "Города викингов".
 CREATE TABLE IF NOT EXISTS Cities
 (
-    id       BIGSERIAL PRIMARY KEY,
-    cityName VARCHAR(30) NOT NULL,
-    status   INT REFERENCES CityStatuses (id),
-    imageURL VARCHAR(500) DEFAULT 'https://w.forfun.com/fetch/7b/7b30cdee828356e2e9a5a161f4fa75a5.jpeg'
+    id          BIGSERIAL PRIMARY KEY,
+    cityName    VARCHAR(30) NOT NULL,
+    status      INT REFERENCES CityStatuses (id),
+    description TEXT,
+    imageURL    VARCHAR(500) DEFAULT 'https://w.forfun.com/fetch/7b/7b30cdee828356e2e9a5a161f4fa75a5.jpeg'
 );
 
 -- Таблица "Викинги".
