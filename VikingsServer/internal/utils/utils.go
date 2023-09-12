@@ -51,3 +51,46 @@ func (king KingURL) GenerateEndpoint() (error, string) {
 
 	return fmt.Errorf("unknown endpoint"), ""
 }
+
+// MARK: - Фанюсь
+
+func generateSqlCommand(params ...interface{}) (string, string) {
+	resultParams := ""
+	resultValues := ""
+	for i, param := range params {
+		if i == 0 {
+			switch param.(type) {
+			case string:
+				value := param.(string)
+				if value != "" {
+					resultParams += value
+					resultValues += value
+				}
+			case int:
+				value := param.(int)
+				if value != -1 {
+					resultParams += fmt.Sprintf("%d", value)
+					resultValues += fmt.Sprintf("'%d'", value)
+				}
+			}
+			continue
+		}
+
+		switch param.(type) {
+		case string:
+			value := param.(string)
+			if value != "" {
+				resultParams += "," + value
+				resultValues += fmt.Sprintf(", '%s'", value)
+			}
+		case int:
+			value := param.(int)
+			if value != -1 {
+				resultParams += fmt.Sprintf(", %d", value)
+				resultValues += fmt.Sprintf(", '%d'", value)
+			}
+		}
+	}
+
+	return resultParams, resultValues
+}

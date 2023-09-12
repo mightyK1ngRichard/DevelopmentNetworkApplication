@@ -11,8 +11,16 @@ import (
 )
 
 func (h *Handler) CitiesList(ctx *gin.Context) {
+
+	cities, err := h.Repository.CitiesList()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"cities": "cities",
+		"cities": cities,
 	})
 }
 
@@ -89,8 +97,9 @@ func (h *Handler) CitiesDelete(ctx *gin.Context) {
 		return
 	}
 	if err := h.Repository.DeleteCity(request.ID); err != nil {
+		h.Logger.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "couldn't delete the city",
+			"error": "couldn't delete the city: " + err.Error(),
 		})
 		return
 	}
@@ -103,7 +112,7 @@ func (h *Handler) DeleteCityWithStatus(ctx *gin.Context) {
 	id := ctx.PostForm("cityID")
 
 	if err := h.Repository.DeleteCityWithStatus(id); err != nil {
-		h.Logger.Error("couldn't delete city")
+		h.Logger.Errorf("couldn't delete city: %s", err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete city"})
 		return
 	}

@@ -5,7 +5,12 @@ import (
 )
 
 func (r *Repository) HikesList() (*[]ds.Hikes, error) {
-	rows, err := r.db.Query(`SELECT * FROM hikes`)
+	sqlCommand := ` SELECT h.id, h.hikename, h.datestart, h.dateend, v.vikingname, hs.name, h.description
+					FROM hikes h
+					LEFT JOIN hikestatuses hs ON h.status = hs.id
+					LEFT JOIN vikings v ON v.id = h.leader;`
+
+	rows, err := r.db.Query(sqlCommand)
 	if err != nil {
 		return nil, err
 	}
