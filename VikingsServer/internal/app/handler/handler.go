@@ -19,8 +19,6 @@ func NewHandler() *Handler {
 }
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
-	router.GET(cities, h.CitiesList)
-	router.GET(hikes, h.HikesList)
 	router.GET(citiesHTML, h.CitiesHTML)
 
 	registerStatic(router)

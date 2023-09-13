@@ -18,7 +18,7 @@
 <script>
     const photos = document.querySelectorAll('.photo');
     photos.forEach(photo => {
-        photo.addEventListener('click', function() {
+        photo.addEventListener('click', function () {
             const photoID = this.id.split('-')[1];
             const newURL = `/cities?city=${photoID}`;
             window.location.href = newURL;

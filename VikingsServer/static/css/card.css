@@ -42,6 +42,8 @@
     color: #ffffff;
     font-family: "New Century Schoolbook", "TeX Gyre Schola", serif;
     font-size: 27px;
+    overflow: hidden;
+    max-height: 40px;
 }
 
 .card:hover {
