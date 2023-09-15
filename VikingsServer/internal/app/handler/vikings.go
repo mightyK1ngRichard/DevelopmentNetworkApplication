@@ -8,7 +8,7 @@ import (
 )
 
 func (h *Handler) AddViking(ctx *gin.Context) {
-	viking := ds.Vikings{CityOfBirth: -1}
+	viking := ds.Vikings{CityOfBirthID: -1}
 	if err := ctx.BindJSON(&viking); err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return

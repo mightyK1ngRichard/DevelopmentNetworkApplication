@@ -10,10 +10,9 @@ const (
 	baseURL    = "api/v3"
 	citiesHTML = "cities"
 
-	cities       = baseURL + "/cities"
-	hikes        = baseURL + "/hikes"
-	vikingAdd    = baseURL + "/viking/add"
-	vikingUpdate = baseURL + "/viking/update"
+	cities = baseURL + "/cities"
+	hikes  = baseURL + "/hikes"
+	viking = baseURL + "/viking"
 )
 
 type Handler struct {
@@ -30,14 +29,15 @@ func NewHandler(l *logrus.Logger, r *repository.Repository) *Handler {
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET(cities, h.CitiesList)
-	router.GET(citiesHTML, h.CitiesHTML)
-	router.POST(citiesHTML, h.DeleteCityWithStatus)
-	router.DELETE(citiesHTML, h.CitiesDelete)
-	router.GET(hikes, h.HikesList)
-	router.POST(vikingAdd, h.AddViking)
-	router.PUT(vikingUpdate, h.UpdateViking)
 	router.DELETE(cities, h.DeleteCity)
-	router.POST(citiesHTML, h.DeleteCityWithStatus)
+
+	router.GET(citiesHTML, h.CitiesHTML)
+	router.POST(citiesHTML, h.DeleteCityHTML)
+
+	router.GET(hikes, h.HikesList)
+
+	router.POST(viking, h.AddViking)
+	router.PUT(viking, h.UpdateViking)
 
 	registerStatic(router)
 }

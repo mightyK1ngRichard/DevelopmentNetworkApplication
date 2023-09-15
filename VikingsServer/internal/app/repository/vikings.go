@@ -39,9 +39,9 @@ func addVikingSQLCommand(v *ds.Vikings) string {
 		values += fmt.Sprintf(", '%s'", v.DayOfDeath)
 	}
 
-	if v.CityOfBirth != -1 {
+	if v.CityOfBirthID != -1 {
 		params += ", cityofbirth"
-		values += fmt.Sprintf(", %d", v.CityOfBirth)
+		values += fmt.Sprintf(", %d", v.CityOfBirthID)
 	}
 
 	if v.ImageURL != "" {
@@ -68,8 +68,8 @@ func updateVikingSQLCommand(v *ds.Vikings) string {
 	if v.DayOfDeath != "" {
 		params += fmt.Sprintf(",dayofdeath='%s'", v.DayOfDeath)
 	}
-	if v.CityOfBirth != -1 {
-		params += fmt.Sprintf(",cityofbirth=%d", v.CityOfBirth)
+	if v.CityOfBirthID != -1 {
+		params += fmt.Sprintf(",cityofbirthid=%d", v.CityOfBirthID)
 	}
 	if v.ImageURL != "" {
 		params += fmt.Sprintf(",imageurl=%s", v.ImageURL)

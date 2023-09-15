@@ -107,7 +107,7 @@ func (h *Handler) CitiesDeleteCascade(ctx *gin.Context) {
 	})
 }
 
-func (h *Handler) DeleteCityWithStatus(ctx *gin.Context) {
+func (h *Handler) DeleteCityHTML(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.PostForm("cityID"))
 	if err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
