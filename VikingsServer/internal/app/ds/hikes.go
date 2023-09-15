@@ -5,7 +5,7 @@ type Hikes struct {
 	HikeName    string `json:"hikeName"`
 	DateStart   string `json:"dateStart"`
 	DateEnd     string `json:"dateEnd"`
-	Leader      string `json:"leader"`
-	Status      string `json:"status"`
+	AuthorID    int    `json:"authorId"`
+	Status      int    `json:"status"`
 	Description string `json:"description"`
 }

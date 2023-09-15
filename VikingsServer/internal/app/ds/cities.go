@@ -12,3 +12,8 @@ type CityViewData struct {
 	Cities   *[]City
 	LookAlso *[]City
 }
+
+type OneCityViewData struct {
+	City     *City
+	LookAlso *[]City
+}

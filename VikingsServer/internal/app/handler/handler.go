@@ -36,6 +36,8 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET(hikes, h.HikesList)
 	router.POST(vikingAdd, h.AddViking)
 	router.PUT(vikingUpdate, h.UpdateViking)
+	router.DELETE(cities, h.DeleteCity)
+	router.POST(citiesHTML, h.DeleteCityWithStatus)
 
 	registerStatic(router)
 }
@@ -45,4 +47,14 @@ func registerStatic(router *gin.Engine) {
 	router.Static("/static", "./static")
 	router.Static("/css", "./static")
 	router.Static("/img", "./static")
+}
+
+// MARK: - Error handler
+
+func (h *Handler) errorHandler(ctx *gin.Context, errorStatusCode int, err error) {
+	h.Logger.Error(err.Error())
+	ctx.JSON(errorStatusCode, gin.H{
+		"status":      "error",
+		"description": err.Error(),
+	})
 }

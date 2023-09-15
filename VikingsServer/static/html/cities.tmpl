@@ -10,7 +10,9 @@
                 <img src="/static/img/deleteTrash.png" alt="Deleted" class="deleted-trash">
             </div>
             <div class="container-card">
-                <div class="title">{{ .CityName }}</div>
+                <div class="title"
+                     style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                >{{ .CityName }}</div>
             </div>
         </div>
     {{ end }}
