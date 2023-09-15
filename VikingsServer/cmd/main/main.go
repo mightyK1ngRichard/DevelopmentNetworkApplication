@@ -27,12 +27,6 @@ func main() {
 	if errRep != nil {
 		logger.Fatalf("Error from repository: %s", err)
 	}
-	defer func(rep *repository.Repository) {
-		err := rep.TurnOffDataBase()
-		if err != nil {
-			logger.Errorf("Error of closing the sql connect: %s", err)
-		}
-	}(rep)
 	hand := handler.NewHandler(logger, rep)
 	application := app.NewApp(conf, router, logger, hand)
 	application.RunApp()

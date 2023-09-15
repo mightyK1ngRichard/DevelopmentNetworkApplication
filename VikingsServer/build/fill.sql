@@ -1,5 +1,5 @@
 -- Добавляем статусы.
-INSERT INTO hikestatuses (name)
+INSERT INTO hike_statuses(name)
 VALUES ('создан'),
        ('в работе'),
        ('завершён'),

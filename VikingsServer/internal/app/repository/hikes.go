@@ -4,15 +4,20 @@ import (
 	"VikingsServer/internal/app/ds"
 )
 
-func (r *Repository) HikesList() (*[]ds.Hikes, error) {
+func (r *Repository) HikesList() (*[]ds.Hike, error) {
+	return nil, nil
+}
+
+/*
+func (r *Repository) HikesList() (*[]ds.Hike, error) {
 	rows, err := r.db.Query(`SELECT * FROM hikes`)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var hikes []ds.Hikes
+	var hikes []ds.Hike
 	for rows.Next() {
-		h := ds.Hikes{}
+		h := ds.Hike{}
 		if err := rows.Scan(
 			&h.ID,
 			&h.HikeName,
@@ -30,3 +35,4 @@ func (r *Repository) HikesList() (*[]ds.Hikes, error) {
 
 	return &hikes, nil
 }
+*/

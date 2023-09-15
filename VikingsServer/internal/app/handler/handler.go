@@ -30,7 +30,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET(hikes, h.HikesList)
 	router.GET(citiesHTML, h.CitiesHTML)
 	router.DELETE(cities, h.DeleteCity)
-	router.POST(citiesHTML, h.DeleteCityWithStatus)
+	router.POST(citiesHTML, h.DeleteCityHTML)
 
 	registerStatic(router)
 }
