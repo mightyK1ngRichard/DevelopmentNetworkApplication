@@ -29,8 +29,8 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET(cities, h.CitiesList)
 	router.GET(hikes, h.HikesList)
 	router.GET(citiesHTML, h.CitiesHTML)
-	router.POST(citiesHTML, h.DeleteCityWithStatus)
-	router.DELETE(citiesHTML, h.CitiesDelete)
+	router.DELETE(cities, h.DeleteCity)
+	//router.DELETE(citiesHTML, h.CitiesDelete)
 
 	registerStatic(router)
 }
@@ -40,4 +40,14 @@ func registerStatic(router *gin.Engine) {
 	router.Static("/static", "./static")
 	router.Static("/css", "./static")
 	router.Static("/img", "./static")
+}
+
+// MARK: - Error handler
+
+func (h *Handler) errorHandler(ctx *gin.Context, errorStatusCode int, err error) {
+	h.Logger.Error(err.Error())
+	ctx.JSON(errorStatusCode, gin.H{
+		"status":      "error",
+		"description": err.Error(),
+	})
 }

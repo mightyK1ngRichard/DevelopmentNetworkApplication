@@ -18,7 +18,7 @@ func (r *Repository) HikesList() (*[]ds.Hikes, error) {
 			&h.HikeName,
 			&h.DateStart,
 			&h.DateEnd,
-			&h.Leader,
+			&h.AuthorID,
 			&h.Status,
 			&h.Description,
 		); err != nil {

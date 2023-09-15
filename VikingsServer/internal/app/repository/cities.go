@@ -6,7 +6,12 @@ import (
 )
 
 func (r *Repository) CitiesList() (*[]ds.City, error) {
-	sqlCommand := `SELECT c.id, c.cityname, s.name, c.imageurl, c.description FROM cities c LEFT JOIN citystatuses s ON c.status = s.id;`
+	sqlCommand := `
+	SELECT c.id, c.cityname, s.name, c.imageurl, c.description
+	FROM cities c
+	LEFT JOIN citystatuses s ON c.status = s.id
+	WHERE s.name != 'Удалён';
+	`
 	rows, err := r.db.Query(sqlCommand)
 	if err != nil {
 		return nil, err
@@ -47,7 +52,7 @@ func (r *Repository) DeleteCity(id int) error {
 	return nil
 }
 
-func (r *Repository) DeleteCityWithStatus(id string) error {
+func (r *Repository) DeleteCityWithStatus(id int) error {
 	sqlCommand := `UPDATE cities SET status=2 WHERE id = $1;`
 	_, err := r.db.Exec(sqlCommand, id)
 	if err != nil {

@@ -11,8 +11,15 @@ import (
 )
 
 func (h *Handler) CitiesList(ctx *gin.Context) {
+	cities, err := h.Repository.CitiesList()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"cities": "cities",
+		"cities": cities,
 	})
 }
 
@@ -38,9 +45,9 @@ func (h *Handler) CitiesHTML(ctx *gin.Context) {
 			}
 		}
 
+		var lookAlso []ds.City
 		if currentCity != (ds.City{}) {
 			index := utils.FindElement(*data.Cities, currentCity)
-			var lookAlso []ds.City
 			if index != -1 {
 				startIndex := index + 1
 				if startIndex >= len(*data.Cities) {
@@ -53,14 +60,14 @@ func (h *Handler) CitiesHTML(ctx *gin.Context) {
 					lookAlso = (*data.Cities)[endIndex:startIndex]
 				}
 			}
-
-			ctx.HTML(http.StatusOK, "city.card.tmpl",
-				ds.CityViewData{
-					Cities:   &[]ds.City{currentCity},
-					LookAlso: &lookAlso,
-				},
-			)
 		}
+
+		ctx.HTML(http.StatusOK, "city.card.tmpl",
+			ds.OneCityViewData{
+				City:     &currentCity,
+				LookAlso: &lookAlso,
+			},
+		)
 
 		return
 	}
@@ -80,7 +87,7 @@ func (h *Handler) CitiesHTML(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "cities.tmpl", data)
 }
 
-func (h *Handler) CitiesDelete(ctx *gin.Context) {
+func (h *Handler) CitiesDeleteCascade(ctx *gin.Context) {
 	var request struct {
 		ID int `json:"id"`
 	}
@@ -100,13 +107,39 @@ func (h *Handler) CitiesDelete(ctx *gin.Context) {
 }
 
 func (h *Handler) DeleteCityWithStatus(ctx *gin.Context) {
-	id := ctx.PostForm("cityID")
-
+	id, err := strconv.Atoi(ctx.PostForm("cityID"))
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
 	if err := h.Repository.DeleteCityWithStatus(id); err != nil {
 		h.Logger.Error("couldn't delete city")
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete city"})
 		return
 	}
-	h.Logger.Info("city with id=" + id + "update success")
-	ctx.Redirect(http.StatusSeeOther, citiesHTML+"?city="+id)
+	h.Logger.Info("city with id=" + "update success")
+	ctx.Redirect(http.StatusSeeOther, citiesHTML+"?city="+fmt.Sprintf("%d", id))
+}
+
+func (h *Handler) DeleteCity(ctx *gin.Context) {
+	var requestData struct {
+		ID string `json:"id"`
+	}
+	if err := ctx.BindJSON(&requestData); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	id, errInt := strconv.Atoi(requestData.ID)
+	if errInt != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, errInt)
+		return
+	}
+	if err := h.Repository.DeleteCityWithStatus(id); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	h.Logger.Info("city with id=" + fmt.Sprintf("%d", id) + "update success")
+	ctx.JSON(http.StatusOK, gin.H{"status": "success", "cityId": id})
 }
