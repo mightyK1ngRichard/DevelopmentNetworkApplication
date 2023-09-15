@@ -118,7 +118,7 @@ func (h *Handler) DeleteCityWithStatus(ctx *gin.Context) {
 		return
 	}
 	h.Logger.Info("city with id=" + "update success")
-	ctx.Redirect(http.StatusSeeOther, citiesHTML+"?city="+fmt.Sprintf("%d", id))
+	ctx.Redirect(http.StatusSeeOther, citiesHTML)
 }
 
 func (h *Handler) DeleteCity(ctx *gin.Context) {

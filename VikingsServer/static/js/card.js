@@ -18,7 +18,7 @@ circles.forEach(circle => {
 
             if (confirmDelete) {
                 const deleteURL = `api/v3/cities`;
-                const requestData = {"id": parseInt(cityID)};
+                const requestData = {"id": cityID};
                 fetch(deleteURL, {
                     method: 'DELETE',
                     headers: {
