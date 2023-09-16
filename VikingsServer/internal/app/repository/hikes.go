@@ -4,20 +4,21 @@ import (
 	"VikingsServer/internal/app/ds"
 )
 
-func (r *Repository) HikesList() (*[]ds.Hikes, error) {
-	sqlCommand := ` SELECT h.id, h.hikename, h.datestart, h.dateend, v.vikingname, hs.name, h.description
-					FROM hikes h
-					LEFT JOIN hikestatuses hs ON h.status = hs.id
-					LEFT JOIN vikings v ON v.id = h.leader;`
+func (r *Repository) HikesList() (*[]ds.Hike, error) {
+	return nil, nil
+}
 
-	rows, err := r.db.Query(sqlCommand)
+/*
+func (r *Repository) HikesList() (*[]ds.Hike, error) {
+	rows, err := r.db.Query(`SELECT * FROM hikes`)
+>>>>>>> backend/lab02
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var hikes []ds.Hikes
+	var hikes []ds.Hike
 	for rows.Next() {
-		h := ds.Hikes{}
+		h := ds.Hike{}
 		if err := rows.Scan(
 			&h.ID,
 			&h.HikeName,
@@ -35,3 +36,4 @@ func (r *Repository) HikesList() (*[]ds.Hikes, error) {
 
 	return &hikes, nil
 }
+*/

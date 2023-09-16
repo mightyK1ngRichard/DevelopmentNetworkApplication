@@ -2,46 +2,31 @@ package repository
 
 import (
 	"VikingsServer/internal/app/ds"
-	"database/sql"
 )
 
 func (r *Repository) CitiesList() (*[]ds.City, error) {
-	sqlCommand := `
-	SELECT c.id, c.cityname, s.name, c.imageurl, c.description
-	FROM cities c
-	LEFT JOIN citystatuses s ON c.status = s.id
-	WHERE s.name != 'Удалён';
-	`
-	rows, err := r.db.Query(sqlCommand)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
 	var cities []ds.City
-	for rows.Next() {
-		c := ds.City{}
-		var description sql.NullString
-		if err := rows.Scan(
-			&c.ID,
-			&c.CityName,
-			&c.Status,
-			&c.ImageURL,
-			&description,
-		); err != nil {
-			r.logger.Error(err)
-			continue
-		}
-		if description.Valid {
-			c.Description = description.String
-		} else {
-			c.Description = "Описание отсутствует"
-		}
-		cities = append(cities, c)
-	}
-
+	r.db.Preload("Status").Where(
+		`status_id IN (SELECT id FROM city_statuses WHERE status_name = ? LIMIT 1)`,
+		"существует",
+	).Find(&cities)
 	return &cities, nil
 }
 
+func (r *Repository) DeleteCity(id uint) error {
+	var newStatus ds.CityStatus
+	r.db.Where("status_name = ?", "уничтожен").First(&newStatus)
+
+	if newStatus.ID != 0 {
+		var city ds.City
+		r.db.First(&city, id)
+		city.StatusID = newStatus.ID
+		r.db.Save(&city)
+	}
+	return nil
+}
+
+/*
 func (r *Repository) DeleteCity(id int) error {
 	sqlCommand := `DELETE FROM cities WHERE id=$1;`
 	_, err := r.db.Exec(sqlCommand, id)
@@ -60,3 +45,4 @@ func (r *Repository) DeleteCityWithStatus(id int) error {
 	}
 	return nil
 }
+*/

@@ -89,7 +89,7 @@ func (h *Handler) CitiesHTML(ctx *gin.Context) {
 
 func (h *Handler) CitiesDeleteCascade(ctx *gin.Context) {
 	var request struct {
-		ID int `json:"id"`
+		ID uint `json:"id"`
 	}
 	if err := ctx.BindJSON(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -113,7 +113,7 @@ func (h *Handler) DeleteCityHTML(ctx *gin.Context) {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if err := h.Repository.DeleteCityWithStatus(id); err != nil {
+	if err := h.Repository.DeleteCity(uint(id)); err != nil {
 		h.Logger.Error("couldn't delete city")
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete city"})
 		return
@@ -123,24 +123,28 @@ func (h *Handler) DeleteCityHTML(ctx *gin.Context) {
 }
 
 func (h *Handler) DeleteCity(ctx *gin.Context) {
-	var requestData struct {
+	var request struct {
 		ID string `json:"id"`
 	}
-	if err := ctx.BindJSON(&requestData); err != nil {
-		h.errorHandler(ctx, http.StatusInternalServerError, err)
+	if err := ctx.BindJSON(&request); err != nil {
+		h.Logger.Error(err)
+		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
-
-	id, errInt := strconv.Atoi(requestData.ID)
-	if errInt != nil {
-		h.errorHandler(ctx, http.StatusInternalServerError, errInt)
+	id, err2 := strconv.Atoi(request.ID)
+	if err2 != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err2)
 		return
 	}
-	if err := h.Repository.DeleteCityWithStatus(id); err != nil {
-		h.errorHandler(ctx, http.StatusInternalServerError, err)
+	if id == 0 {
+		h.Logger.Error("incorrect id")
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("incorrect id"))
 		return
 	}
-
-	h.Logger.Info("city with id=" + fmt.Sprintf("%d", id) + "update success")
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "cityId": id})
+	if err := h.Repository.DeleteCity(uint(id)); err != nil {
+		h.Logger.Error(err)
+		ctx.JSON(http.StatusInternalServerError, err)
+		return
+	}
+	ctx.Redirect(http.StatusSeeOther, citiesHTML)
 }

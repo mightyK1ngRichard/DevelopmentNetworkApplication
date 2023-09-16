@@ -1,33 +1,25 @@
 package repository
 
 import (
-	"database/sql"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type Repository struct {
-	db     *sql.DB
 	logger *logrus.Logger
+	db     *gorm.DB
 }
 
 func NewRepository(dsn string, log *logrus.Logger) (*Repository, error) {
-	db, err := sql.Open("postgres", dsn)
+	gormDB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Error("Data base failed to connect")
 		return nil, err
 	}
-	log.Info("Data base connected successful")
 
 	return &Repository{
-		db:     db,
+		db:     gormDB,
 		logger: log,
 	}, nil
-}
-
-func (r *Repository) TurnOffDataBase() error {
-	if err := r.db.Close(); err != nil {
-		return err
-	}
-	return nil
 }
