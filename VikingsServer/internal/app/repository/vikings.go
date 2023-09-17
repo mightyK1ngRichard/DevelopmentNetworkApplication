@@ -2,29 +2,19 @@ package repository
 
 import (
 	"VikingsServer/internal/app/ds"
-	"fmt"
 )
 
-func (r *Repository) AddViking(v *ds.Vikings) error {
-	sqlCommand := addVikingSQLCommand(v)
-	row := r.db.QueryRow(sqlCommand)
-	if err := row.Scan(&v.ID); err != nil {
-		return err
-	}
+func (r *Repository) AddViking(v *ds.Viking) error {
 	return nil
 }
 
-func (r *Repository) UpdateViking(v *ds.Vikings) error {
-	// TODO: Можно ещё добавить проверку на сущ id
-	sqlCommand := updateVikingSQLCommand(v)
-	if _, err := r.db.Exec(sqlCommand); err != nil {
-		return err
-	}
+func (r *Repository) UpdateViking(v *ds.Viking) error {
 	return nil
 }
 
 // MARK: - Private filter sql command
 
+/*
 func addVikingSQLCommand(v *ds.Vikings) string {
 	params := `vikingname, post`
 	values := fmt.Sprintf("'%s', '%s'", v.VikingName, v.Post)
@@ -78,3 +68,4 @@ func updateVikingSQLCommand(v *ds.Vikings) string {
 	setString := fmt.Sprintf(`SET %s WHERE id=%d;`, params, v.ID)
 	return updateString + setString
 }
+*/

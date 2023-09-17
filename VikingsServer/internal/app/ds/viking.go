@@ -1,12 +1,10 @@
 package ds
 
 import (
-	"gorm.io/gorm"
 	"time"
 )
 
 type Viking struct {
-	gorm.Model
 	ID            uint      `json:"id" gorm:"primary_key"`
 	VikingName    string    `json:"vikingName" gorm:"type:varchar(60);not null"`
 	Post          string    `json:"post" gorm:"type:varchar(100);not null"`

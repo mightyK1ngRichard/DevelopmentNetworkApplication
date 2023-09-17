@@ -87,26 +87,6 @@ func (h *Handler) CitiesHTML(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "cities.tmpl", data)
 }
 
-func (h *Handler) CitiesDeleteCascade(ctx *gin.Context) {
-	var request struct {
-		ID uint `json:"id"`
-	}
-	if err := ctx.BindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	if err := h.Repository.DeleteCity(request.ID); err != nil {
-		h.Logger.Error(err.Error())
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "couldn't delete the city: " + err.Error(),
-		})
-		return
-	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"success": fmt.Sprintf("deleted city with id: %d", request.ID),
-	})
-}
-
 func (h *Handler) DeleteCityHTML(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.PostForm("cityID"))
 	if err != nil {
@@ -143,8 +123,12 @@ func (h *Handler) DeleteCity(ctx *gin.Context) {
 	}
 	if err := h.Repository.DeleteCity(uint(id)); err != nil {
 		h.Logger.Error(err)
-		ctx.JSON(http.StatusInternalServerError, err)
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Redirect(http.StatusSeeOther, citiesHTML)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":     "success",
+		"deleted_id": id,
+	})
 }

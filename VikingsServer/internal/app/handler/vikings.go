@@ -8,7 +8,7 @@ import (
 )
 
 func (h *Handler) AddViking(ctx *gin.Context) {
-	viking := ds.Vikings{CityOfBirthID: -1}
+	viking := ds.Viking{}
 	if err := ctx.BindJSON(&viking); err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
@@ -25,12 +25,12 @@ func (h *Handler) AddViking(ctx *gin.Context) {
 }
 
 func (h *Handler) UpdateViking(ctx *gin.Context) {
-	viking := ds.Vikings{ID: -1}
+	viking := ds.Viking{}
 	if err := ctx.BindJSON(&viking); err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if viking.ID == -1 {
+	if viking.ID == 0 {
 		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("param `id` not found"))
 		return
 	}

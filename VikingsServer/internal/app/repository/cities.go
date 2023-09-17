@@ -2,6 +2,7 @@ package repository
 
 import (
 	"VikingsServer/internal/app/ds"
+	"fmt"
 )
 
 func (r *Repository) CitiesList() (*[]ds.City, error) {
@@ -20,10 +21,14 @@ func (r *Repository) DeleteCity(id uint) error {
 	if newStatus.ID != 0 {
 		var city ds.City
 		r.db.First(&city, id)
+		if city.ID == 0 {
+			return fmt.Errorf("city not found")
+		}
 		city.StatusID = newStatus.ID
 		r.db.Save(&city)
+		return nil
 	}
-	return nil
+	return fmt.Errorf("city status not found. may be it's name was changed by someone")
 }
 
 /*

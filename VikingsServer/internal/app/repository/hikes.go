@@ -5,7 +5,9 @@ import (
 )
 
 func (r *Repository) HikesList() (*[]ds.Hike, error) {
-	return nil, nil
+	var hikes []ds.Hike
+	r.db.Preload("Author").Preload("Status").Find(&hikes)
+	return &hikes, nil
 }
 
 /*

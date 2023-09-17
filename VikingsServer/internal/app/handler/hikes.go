@@ -8,12 +8,12 @@ import (
 func (h *Handler) HikesList(ctx *gin.Context) {
 	hikes, err := h.Repository.HikesList()
 	if err != nil {
-		ctx.JSON(http.StatusNoContent, gin.H{
-			"error": err.Error(),
-		})
+		h.errorHandler(ctx, http.StatusNoContent, err)
 		return
 	}
+
 	ctx.JSON(http.StatusOK, gin.H{
-		"hikes": hikes,
+		"status": "success",
+		"hikes":  hikes,
 	})
 }
