@@ -2,20 +2,48 @@ package repository
 
 import (
 	"VikingsServer/internal/app/ds"
+	"VikingsServer/internal/utils"
 )
 
 func (r *Repository) VikingList() (*[]ds.Viking, error) {
-	return nil, nil
+	var vikings []ds.Viking
+	param := r.db.Preload("CityOfBirth").Preload("CityOfBirth.Status").Find(&vikings)
+	return &vikings, param.Error
 }
 
-func (r *Repository) AddViking(v *ds.Viking) error {
-	return nil
+func (r *Repository) AddViking(viking *ds.Viking) error {
+	result := r.db.Create(viking)
+	return result.Error
 }
 
-func (r *Repository) UpdateViking(v *ds.Viking) error {
-	return nil
+func (r *Repository) UpdateViking(updatedViking *ds.Viking) error {
+	var oldViking ds.Viking
+	if result := r.db.First(&oldViking, updatedViking.ID); result.Error != nil {
+		return result.Error
+	}
+	if updatedViking.VikingName != utils.EmptyString {
+		oldViking.VikingName = updatedViking.VikingName
+	}
+	if updatedViking.Post != utils.EmptyString {
+		oldViking.Post = updatedViking.Post
+	}
+	if updatedViking.Birthday.String() != utils.EmptyDate {
+		oldViking.Birthday = updatedViking.Birthday
+	}
+	if updatedViking.DayOfDeath.String() != utils.EmptyDate {
+		oldViking.DayOfDeath = updatedViking.DayOfDeath
+	}
+	if updatedViking.CityOfBirthID != utils.EmptyInt {
+		oldViking.CityOfBirthID = updatedViking.CityOfBirthID
+	}
+	if updatedViking.ImageURL != utils.EmptyString {
+		oldViking.ImageURL = updatedViking.ImageURL
+	}
+	*updatedViking = oldViking
+	result := r.db.Save(updatedViking)
+	return result.Error
 }
 
-func (r *Repository) DeleteViking() error {
+func (r *Repository) DeleteViking(id uint) error {
 	return nil
 }

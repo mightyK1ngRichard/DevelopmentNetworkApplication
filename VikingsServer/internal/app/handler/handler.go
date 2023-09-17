@@ -13,7 +13,7 @@ const (
 
 	cities = baseURL + "/cities"
 	hikes  = baseURL + "/hikes"
-	viking = baseURL + "/viking"
+	viking = baseURL + "/vikings"
 )
 
 type Handler struct {
@@ -42,6 +42,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.DELETE(hikes, h.DeleteHike)
 	router.PUT(hikes, h.UpdateHike)
 
+	router.GET(viking, h.VikingsList)
 	router.POST(viking, h.AddViking)
 	router.PUT(viking, h.UpdateViking)
 

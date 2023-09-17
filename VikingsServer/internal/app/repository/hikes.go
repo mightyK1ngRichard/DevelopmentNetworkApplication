@@ -2,6 +2,7 @@ package repository
 
 import (
 	"VikingsServer/internal/app/ds"
+	"VikingsServer/internal/utils"
 )
 
 func (r *Repository) HikesList() (*[]ds.Hike, error) {
@@ -34,25 +35,25 @@ func (r *Repository) UpdateHike(updatedHike *ds.Hike) error {
 	if result := r.db.First(&oldHike, updatedHike.ID); result.Error != nil {
 		return result.Error
 	}
-	if updatedHike.HikeName != "" {
+	if updatedHike.HikeName != utils.EmptyString {
 		oldHike.HikeName = updatedHike.HikeName
 	}
-	if updatedHike.DateEnd.String() != "0001-01-01 00:00:00 +0000 UTC" {
+	if updatedHike.DateEnd.String() != utils.EmptyDate {
 		oldHike.DateStart = updatedHike.DateStart
 	}
-	if updatedHike.DateEnd.String() != "0001-01-01 00:00:00 +0000 UTC" {
+	if updatedHike.DateEnd.String() != utils.EmptyDate {
 		oldHike.DateEnd = updatedHike.DateEnd
 	}
-	if updatedHike.DateStartPreparing.String() != "0001-01-01 00:00:00 +0000 UTC" {
+	if updatedHike.DateStartPreparing.String() != utils.EmptyDate {
 		oldHike.DateStartPreparing = updatedHike.DateStartPreparing
 	}
-	if updatedHike.AuthorID != 0 {
+	if updatedHike.AuthorID != utils.EmptyInt {
 		oldHike.AuthorID = updatedHike.AuthorID
 	}
-	if updatedHike.StatusID != 0 {
+	if updatedHike.StatusID != utils.EmptyInt {
 		oldHike.StatusID = updatedHike.StatusID
 	}
-	if updatedHike.Description != "" {
+	if updatedHike.Description != utils.EmptyString {
 		oldHike.Description = updatedHike.Description
 	}
 	*updatedHike = oldHike
