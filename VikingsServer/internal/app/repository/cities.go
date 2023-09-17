@@ -47,7 +47,9 @@ func (r *Repository) UpdateCity(updatedCity *ds.City) error {
 	if updatedCity.CityName != "" {
 		oldCity.CityName = updatedCity.CityName
 	}
-	oldCity.StatusID = updatedCity.StatusID
+	if updatedCity.StatusID != 0 {
+		oldCity.StatusID = updatedCity.StatusID
+	}
 	if updatedCity.ImageURL != "" {
 		oldCity.ImageURL = updatedCity.ImageURL
 	}

@@ -38,6 +38,9 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.POST(citiesHTML, h.DeleteCityHTML)
 
 	router.GET(hikes, h.HikesList)
+	router.POST(hikes, h.AddHike)
+	router.DELETE(hikes, h.DeleteHike)
+	router.PUT(hikes, h.UpdateHike)
 
 	router.POST(viking, h.AddViking)
 	router.PUT(viking, h.UpdateViking)

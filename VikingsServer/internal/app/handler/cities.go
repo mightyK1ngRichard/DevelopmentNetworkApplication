@@ -3,7 +3,6 @@ package handler
 import (
 	"VikingsServer/internal/app/ds"
 	"VikingsServer/internal/utils"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -92,10 +91,9 @@ func (h *Handler) DeleteCityHTML(ctx *gin.Context) {
 	}
 	if err := h.Repository.DeleteCity(uint(id)); err != nil {
 		h.Logger.Error("couldn't delete city")
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete city"})
+		ctx.Redirect(http.StatusSeeOther, citiesHTML)
 		return
 	}
-	h.Logger.Info("city with id=" + fmt.Sprintf("%d", id) + "update success")
 	ctx.Redirect(http.StatusSeeOther, citiesHTML)
 }
 
@@ -104,7 +102,6 @@ func (h *Handler) DeleteCity(ctx *gin.Context) {
 		ID string `json:"id"`
 	}
 	if err := ctx.BindJSON(&request); err != nil {
-		h.Logger.Error(err)
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
@@ -114,12 +111,10 @@ func (h *Handler) DeleteCity(ctx *gin.Context) {
 		return
 	}
 	if id == 0 {
-		h.Logger.Error("incorrect id")
-		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("incorrect id"))
+		h.errorHandler(ctx, http.StatusBadRequest, idNotFound)
 		return
 	}
 	if err := h.Repository.DeleteCity(uint(id)); err != nil {
-		h.Logger.Error(err)
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -134,11 +129,11 @@ func (h *Handler) AddCity(ctx *gin.Context) {
 		return
 	}
 	if newCity.ID != 0 {
-		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("id must be empty"))
+		h.errorHandler(ctx, http.StatusBadRequest, idMustBeEmpty)
 		return
 	}
 	if newCity.CityName == "" {
-		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("city name cannot be empty"))
+		h.errorHandler(ctx, http.StatusBadRequest, cityCannotBeEmpty)
 		return
 	}
 	if err := h.Repository.AddCity(&newCity); err != nil {
@@ -156,7 +151,7 @@ func (h *Handler) UpdateCity(ctx *gin.Context) {
 		return
 	}
 	if updatedCity.ID == 0 {
-		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("id not found"))
+		h.errorHandler(ctx, http.StatusBadRequest, idNotFound)
 		return
 	}
 	if err := h.Repository.UpdateCity(&updatedCity); err != nil {

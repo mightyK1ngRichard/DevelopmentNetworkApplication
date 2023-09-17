@@ -18,10 +18,7 @@ func (h *Handler) AddViking(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"status":   "success",
-		"vikingID": viking.ID,
-	})
+	h.successHandler(ctx, "viking_id", viking.ID)
 }
 
 func (h *Handler) UpdateViking(ctx *gin.Context) {
@@ -39,8 +36,5 @@ func (h *Handler) UpdateViking(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"status":   "success",
-		"vikingID": viking.ID,
-	})
+	h.successHandler(ctx, "viking_id", viking.ID)
 }
