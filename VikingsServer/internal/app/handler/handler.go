@@ -29,6 +29,8 @@ func NewHandler(l *logrus.Logger, r *repository.Repository) *Handler {
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET(cities, h.CitiesList)
+	router.POST(cities, h.AddCity)
+	router.PUT(cities, h.UpdateCity)
 	router.DELETE(cities, h.DeleteCity)
 
 	router.GET(citiesHTML, h.CitiesHTML)

@@ -132,3 +132,55 @@ func (h *Handler) DeleteCity(ctx *gin.Context) {
 		"deleted_id": id,
 	})
 }
+
+func (h *Handler) AddCity(ctx *gin.Context) {
+	var newCity ds.City
+	if err := ctx.BindJSON(&newCity); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+	if newCity.ID != 0 {
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("id must be empty"))
+		return
+	}
+	if newCity.CityName == "" {
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("city name cannot be empty"))
+		return
+	}
+	if err := h.Repository.AddCity(&newCity); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"city_id": newCity.ID,
+	})
+}
+
+func (h *Handler) UpdateCity(ctx *gin.Context) {
+	var updatedCity ds.City
+	if err := ctx.BindJSON(&updatedCity); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+	if updatedCity.ID == 0 {
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("id not found"))
+		return
+	}
+	if err := h.Repository.UpdateCity(&updatedCity); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"updated_city": gin.H{
+			"id":          updatedCity.ID,
+			"city_name":   updatedCity.CityName,
+			"status_id":   updatedCity.StatusID,
+			"description": updatedCity.Description,
+			"image_url":   updatedCity.ImageURL,
+		},
+	})
+}
