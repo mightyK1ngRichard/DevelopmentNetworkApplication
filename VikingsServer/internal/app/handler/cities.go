@@ -13,14 +13,11 @@ import (
 func (h *Handler) CitiesList(ctx *gin.Context) {
 	cities, err := h.Repository.CitiesList()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"cities": cities,
-	})
+
+	h.successHandler(ctx, "cities", cities)
 }
 
 func (h *Handler) CitiesHTML(ctx *gin.Context) {
@@ -98,7 +95,7 @@ func (h *Handler) DeleteCityHTML(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete city"})
 		return
 	}
-	h.Logger.Info("city with id=" + "update success")
+	h.Logger.Info("city with id=" + fmt.Sprintf("%d", id) + "update success")
 	ctx.Redirect(http.StatusSeeOther, citiesHTML)
 }
 
@@ -127,10 +124,7 @@ func (h *Handler) DeleteCity(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"status":     "success",
-		"deleted_id": id,
-	})
+	h.successHandler(ctx, "deleted_id", id)
 }
 
 func (h *Handler) AddCity(ctx *gin.Context) {
@@ -152,10 +146,7 @@ func (h *Handler) AddCity(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"status":  "success",
-		"city_id": newCity.ID,
-	})
+	h.successHandler(ctx, "city_id", newCity.ID)
 }
 
 func (h *Handler) UpdateCity(ctx *gin.Context) {
@@ -173,14 +164,11 @@ func (h *Handler) UpdateCity(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"status": "success",
-		"updated_city": gin.H{
-			"id":          updatedCity.ID,
-			"city_name":   updatedCity.CityName,
-			"status_id":   updatedCity.StatusID,
-			"description": updatedCity.Description,
-			"image_url":   updatedCity.ImageURL,
-		},
+	h.successHandler(ctx, "updated_city", gin.H{
+		"id":          updatedCity.ID,
+		"city_name":   updatedCity.CityName,
+		"status_id":   updatedCity.StatusID,
+		"description": updatedCity.Description,
+		"image_url":   updatedCity.ImageURL,
 	})
 }

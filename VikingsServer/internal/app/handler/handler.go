@@ -4,6 +4,7 @@ import (
 	"VikingsServer/internal/app/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"net/http"
 )
 
 const (
@@ -58,5 +59,14 @@ func (h *Handler) errorHandler(ctx *gin.Context, errorStatusCode int, err error)
 	ctx.JSON(errorStatusCode, gin.H{
 		"status":      "error",
 		"description": err.Error(),
+	})
+}
+
+// MARK: - Success handler
+
+func (h *Handler) successHandler(ctx *gin.Context, key string, data interface{}) {
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		key:      data,
 	})
 }
