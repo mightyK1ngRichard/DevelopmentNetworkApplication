@@ -1,9 +1,12 @@
 package handler
 
 import (
+	_ "VikingsServer/docs"
 	"VikingsServer/internal/app/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
 )
 
@@ -50,6 +53,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 }
 
 func registerStatic(router *gin.Engine) {
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.LoadHTMLGlob("static/html/*")
 	router.Static("/static", "./static")
 	router.Static("/css", "./static")

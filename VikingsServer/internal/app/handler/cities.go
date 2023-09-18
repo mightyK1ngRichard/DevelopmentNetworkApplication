@@ -9,6 +9,17 @@ import (
 	"strings"
 )
 
+// /Users/dmitriy/go/bin/swag init -g cmd/main/main.go
+
+// ShowAccount godoc
+// @Summary      Cities
+// @Description  Get cities list
+// @Tags         cities
+// @Produce      json
+// @Success      200  {object}  cities
+// @Failure 	 500  {object}  errorResponse
+// @Router       /cities [get]
+
 func (h *Handler) CitiesList(ctx *gin.Context) {
 	cities, err := h.Repository.CitiesList()
 	if err != nil {
