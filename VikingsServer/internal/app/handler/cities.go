@@ -40,42 +40,7 @@ func (h *Handler) CitiesHTML(ctx *gin.Context) {
 	data.Cities = citiesList
 	searchText := ctx.Query("search")
 	if idStr := ctx.Query("city"); idStr != "" {
-		id, err := strconv.Atoi(idStr)
-		if err != nil {
-			return
-		}
-		var currentCity ds.City
-		for _, city := range *data.Cities {
-			if uint(id) == city.ID {
-				currentCity = city
-				break
-			}
-		}
-
-		var lookAlso []ds.City
-		if currentCity != (ds.City{}) {
-			index := utils.FindElement(*data.Cities, currentCity)
-			if index != -1 {
-				startIndex := index + 1
-				if startIndex >= len(*data.Cities) {
-					startIndex = 0
-				}
-				endIndex := utils.Min(startIndex+5, len(*data.Cities))
-				if startIndex < endIndex {
-					lookAlso = (*data.Cities)[startIndex:endIndex]
-				} else {
-					lookAlso = (*data.Cities)[endIndex:startIndex]
-				}
-			}
-		}
-
-		ctx.HTML(http.StatusOK, "city.card.tmpl",
-			ds.OneCityViewData{
-				City:     &currentCity,
-				LookAlso: &lookAlso,
-			},
-		)
-
+		cityById(ctx, &data, idStr)
 		return
 	}
 
@@ -87,11 +52,48 @@ func (h *Handler) CitiesHTML(ctx *gin.Context) {
 			}
 		}
 		ctx.HTML(http.StatusOK, "cities.tmpl", ds.CityViewData{Cities: &filteredCities})
-
 		return
 	}
 
 	ctx.HTML(http.StatusOK, "cities.tmpl", data)
+}
+
+func cityById(ctx *gin.Context, data *ds.CityViewData, idStr string) {
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return
+	}
+	var currentCity ds.City
+	for _, city := range *data.Cities {
+		if uint(id) == city.ID {
+			currentCity = city
+			break
+		}
+	}
+
+	var lookAlso []ds.City
+	if currentCity != (ds.City{}) {
+		index := utils.FindElement(*data.Cities, currentCity)
+		if index != -1 {
+			startIndex := index + 1
+			if startIndex >= len(*data.Cities) {
+				startIndex = 0
+			}
+			endIndex := utils.Min(startIndex+5, len(*data.Cities))
+			if startIndex < endIndex {
+				lookAlso = (*data.Cities)[startIndex:endIndex]
+			} else {
+				lookAlso = (*data.Cities)[endIndex:startIndex]
+			}
+		}
+	}
+
+	ctx.HTML(http.StatusOK, "city.card.tmpl",
+		ds.OneCityViewData{
+			City:     &currentCity,
+			LookAlso: &lookAlso,
+		},
+	)
 }
 
 func (h *Handler) DeleteCityHTML(ctx *gin.Context) {

@@ -15,3 +15,29 @@
 
 ## Выбранная тема:
 Походы викингов. Услуги - города, заявки - походы викингов
+
+## Эндпоинты:
+
+```http
+[GET]     localhost:7070/api/v3/cities
+[GET]     localhost:7070/api/v3/cities?city=1
+[POST]    localhost:7070/api/v3/cities
+[PUT]     localhost:7070/api/v3/cities
+[DELETE]  localhost:7070/api/v3/cities
+```
+
+```http
+[GET]     localhost:7070/api/v3/hikes
+[GET]     localhost:7070/api/v3/hikes?hike=2
+[POST]    localhost:7070/api/v3/hikes
+[PUT]     localhost:7070/api/v3/hikes
+[DELETE]  localhost:7070/api/v3/hikes
+```
+
+```http
+[GET]     localhost:7070/api/v3/vikings
+[GET]     localhost:7070/api/v3/vikings?viking=2
+[POST]    localhost:7070/api/v3/vikings
+[PUT]     localhost:7070/api/v3/vikings
+[DELETE]  localhost:7070/api/v3/vikings
+```

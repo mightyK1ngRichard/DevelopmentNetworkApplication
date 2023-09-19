@@ -5,5 +5,5 @@ type ExpeditionParticipant struct {
 	VikingID uint   `json:"vikingID"`
 	Viking   Viking `json:"viking" gorm:"foreignkey:VikingID"`
 	HikeID   uint   `json:"hikeID"`
-	Hike     Hike   `json:"hike" gorm:"foreignkey:HikeID"`
+	Hike     Hike   `json:"-" gorm:"foreignkey:HikeID"`
 }
