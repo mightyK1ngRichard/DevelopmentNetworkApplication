@@ -4,16 +4,35 @@ import (
 	"VikingsServer/internal/app/ds"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 func (h *Handler) HikesList(ctx *gin.Context) {
 	hikes, err := h.Repository.HikesList()
+	if hikeIdString := ctx.Query("hike"); hikeIdString != "" {
+		hikeById(ctx, h, hikeIdString)
+		return
+	}
+
 	if err != nil {
 		h.errorHandler(ctx, http.StatusNoContent, err)
 		return
 	}
-
 	h.successHandler(ctx, "hikes", hikes)
+}
+
+func hikeById(ctx *gin.Context, h *Handler, hikeStringID string) {
+	hikeID, err := strconv.Atoi(hikeStringID)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+	hike, errDB := h.Repository.HikeByID(uint(hikeID))
+	if errDB != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, errDB)
+		return
+	}
+	h.successHandler(ctx, "hike", hike)
 }
 
 func (h *Handler) AddHike(ctx *gin.Context) {

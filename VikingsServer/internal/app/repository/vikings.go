@@ -11,13 +11,19 @@ func (r *Repository) VikingList() (*[]ds.Viking, error) {
 	return &vikings, param.Error
 }
 
+func (r *Repository) VikingById(id uint) (*ds.Viking, error) {
+	viking := ds.Viking{}
+	result := r.db.Preload("CityOfBirth.Status").First(&viking, id)
+	return &viking, result.Error
+}
+
 func (r *Repository) AddViking(viking *ds.Viking) error {
 	result := r.db.Create(viking)
 	return result.Error
 }
 
 func (r *Repository) UpdateViking(updatedViking *ds.Viking) error {
-	var oldViking ds.Viking
+	oldViking := ds.Viking{}
 	if result := r.db.First(&oldViking, updatedViking.ID); result.Error != nil {
 		return result.Error
 	}
