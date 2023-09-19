@@ -21,6 +21,11 @@ import (
 // @Router       /cities [get]
 
 func (h *Handler) CitiesList(ctx *gin.Context) {
+	if idStr := ctx.Query("city"); idStr != "" {
+		cityById(ctx, h, idStr)
+		return
+	}
+
 	cities, err := h.Repository.CitiesList()
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
@@ -28,6 +33,21 @@ func (h *Handler) CitiesList(ctx *gin.Context) {
 	}
 
 	h.successHandler(ctx, "cities", cities)
+}
+
+func cityById(ctx *gin.Context, h *Handler, idStr string) {
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+	city, errBD := h.Repository.CitiesById(uint(id))
+	if errBD != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, errBD)
+		return
+	}
+
+	h.successHandler(ctx, "city", city)
 }
 
 func (h *Handler) CitiesHTML(ctx *gin.Context) {
@@ -40,7 +60,7 @@ func (h *Handler) CitiesHTML(ctx *gin.Context) {
 	data.Cities = citiesList
 	searchText := ctx.Query("search")
 	if idStr := ctx.Query("city"); idStr != "" {
-		cityById(ctx, &data, idStr)
+		cityByIdHTML(ctx, &data, idStr)
 		return
 	}
 
@@ -58,7 +78,7 @@ func (h *Handler) CitiesHTML(ctx *gin.Context) {
 	ctx.HTML(http.StatusOK, "cities.tmpl", data)
 }
 
-func cityById(ctx *gin.Context, data *ds.CityViewData, idStr string) {
+func cityByIdHTML(ctx *gin.Context, data *ds.CityViewData, idStr string) {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return
