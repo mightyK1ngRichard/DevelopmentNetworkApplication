@@ -14,9 +14,10 @@ const (
 	baseURL    = "api/v3"
 	citiesHTML = "cities"
 
-	cities = baseURL + "/cities"
-	hikes  = baseURL + "/hikes"
-	viking = baseURL + "/vikings"
+	cities  = baseURL + "/cities"
+	hikes   = baseURL + "/hikes"
+	viking  = baseURL + "/vikings"
+	authors = baseURL + "/authors"
 )
 
 type Handler struct {
@@ -48,6 +49,8 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET(viking, h.VikingsList)
 	router.POST(viking, h.AddViking)
 	router.PUT(viking, h.UpdateViking)
+
+	router.GET(authors, h.AuthorsList)
 
 	registerStatic(router)
 }
