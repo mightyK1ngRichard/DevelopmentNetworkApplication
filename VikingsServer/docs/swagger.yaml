@@ -1,4 +1,27 @@
 basePath: /api/v3
+definitions:
+  ds.City:
+    properties:
+      city_name:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      status:
+        $ref: '#/definitions/ds.CityStatus'
+      status_id:
+        type: integer
+    type: object
+  ds.CityStatus:
+    properties:
+      id:
+        type: integer
+      statusName:
+        type: string
+    type: object
 host: 127.0.0.1
 info:
   contact:
@@ -10,8 +33,27 @@ info:
     name: AS IS (NO WARRANTY)
   title: VIKINGS
   version: "1.0"
-paths: {}
+paths:
+  /cities:
+    get:
+      description: Get a list of cities with optional filtering by city name.
+      parameters:
+      - description: City name for filtering
+        in: query
+        name: city
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/ds.City'
+            type: array
+      summary: Get a list of cities
+      tags:
+      - cities
 schemes:
-- https
 - http
 swagger: "2.0"

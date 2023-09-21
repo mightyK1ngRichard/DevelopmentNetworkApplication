@@ -22,7 +22,7 @@ import (
 // @license.name AS IS (NO WARRANTY)
 
 // @host 127.0.0.1
-// @schemes https http
+// @schemes http
 // @BasePath /api/v3
 
 // ShowAccount godoc

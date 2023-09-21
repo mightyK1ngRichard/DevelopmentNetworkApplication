@@ -81,3 +81,10 @@ func (h *Handler) successHandler(ctx *gin.Context, key string, data interface{})
 		key:      data,
 	})
 }
+
+func (h *Handler) successAddHandler(ctx *gin.Context, key string, data interface{}) {
+	ctx.JSON(http.StatusCreated, gin.H{
+		"status": "success",
+		key:      data,
+	})
+}
