@@ -110,7 +110,7 @@ func (h *Handler) AddImage(ctx *gin.Context) {
 		return
 	}
 
-	h.successHandler(ctx, "image_url", newImageURL)
+	h.successAddHandler(ctx, "image_url", newImageURL)
 }
 
 func (h *Handler) AddCity(ctx *gin.Context) {
