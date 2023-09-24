@@ -4,6 +4,7 @@ import (
 	"VikingsServer/internal/app/ds"
 	"VikingsServer/internal/utils"
 	"github.com/gin-gonic/gin"
+	"mime/multipart"
 	"net/http"
 	"strconv"
 	"strings"
@@ -72,6 +73,28 @@ func (h *Handler) DeleteCity(ctx *gin.Context) {
 	}
 
 	h.successHandler(ctx, "deleted_id", id)
+}
+
+func (h *Handler) AddImage(ctx *gin.Context) {
+	file, header, err := ctx.Request.FormFile("file")
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+	defer func(file multipart.File) {
+		errLol := file.Close()
+		if errLol != nil {
+			h.errorHandler(ctx, http.StatusInternalServerError, errLol)
+			return
+		}
+	}(file)
+	newImageURL, errMinio := h.createImageInMinio(&file, header)
+	if errMinio != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, errMinio)
+		return
+	}
+
+	h.successHandler(ctx, "image_url", newImageURL)
 }
 
 func (h *Handler) AddCity(ctx *gin.Context) {

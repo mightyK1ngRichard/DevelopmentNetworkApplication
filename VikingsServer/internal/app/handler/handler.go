@@ -4,6 +4,7 @@ import (
 	_ "VikingsServer/docs"
 	"VikingsServer/internal/app/repository"
 	"github.com/gin-gonic/gin"
+	"github.com/minio/minio-go"
 	"github.com/sirupsen/logrus"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -14,27 +15,31 @@ const (
 	baseURL    = "api/v3"
 	citiesHTML = "cities"
 
-	cities  = baseURL + "/cities"
-	hikes   = baseURL + "/hikes"
-	viking  = baseURL + "/vikings"
-	authors = baseURL + "/authors"
+	cities       = baseURL + "/cities"
+	addCityImage = baseURL + "/cities/upload-image"
+	hikes        = baseURL + "/hikes"
+	viking       = baseURL + "/vikings"
+	authors      = baseURL + "/authors"
 )
 
 type Handler struct {
 	Logger     *logrus.Logger
 	Repository *repository.Repository
+	Minio      *minio.Client
 }
 
-func NewHandler(l *logrus.Logger, r *repository.Repository) *Handler {
+func NewHandler(l *logrus.Logger, r *repository.Repository, m *minio.Client) *Handler {
 	return &Handler{
 		Logger:     l,
 		Repository: r,
+		Minio:      m,
 	}
 }
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET(cities, h.CitiesList)
 	router.POST(cities, h.AddCity)
+	router.POST(addCityImage, h.AddImage)
 	router.PUT(cities, h.UpdateCity)
 	router.DELETE(cities, h.DeleteCity)
 
