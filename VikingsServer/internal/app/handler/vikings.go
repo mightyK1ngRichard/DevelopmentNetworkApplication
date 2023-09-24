@@ -62,7 +62,7 @@ func (h *Handler) AddViking(ctx *gin.Context) {
 		return
 	}
 
-	h.successHandler(ctx, "viking_id", viking.ID)
+	h.successAddHandler(ctx, "viking_id", viking.ID)
 }
 
 func (h *Handler) UpdateViking(ctx *gin.Context) {
@@ -76,7 +76,7 @@ func (h *Handler) UpdateViking(ctx *gin.Context) {
 		h.errorHandler(ctx, http.StatusBadRequest, idNotFound)
 		return
 	}
-	
+
 	if err := h.Repository.UpdateViking(&viking); err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return

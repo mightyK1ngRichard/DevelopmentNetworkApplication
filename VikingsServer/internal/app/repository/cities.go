@@ -14,6 +14,12 @@ func (r *Repository) CitiesList() (*[]ds.City, error) {
 	return &cities, result.Error
 }
 
+func (r *Repository) CitiesById(id uint) (*ds.City, error) {
+	city := ds.City{}
+	result := r.db.Preload("Status").First(&city, id)
+	return &city, result.Error
+}
+
 func (r *Repository) DeleteCity(id uint) error {
 	var newStatus ds.CityStatus
 	if result := r.db.Where("status_name = ?", "уничтожен").First(&newStatus); result.Error != nil {

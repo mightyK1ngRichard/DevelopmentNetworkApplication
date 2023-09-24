@@ -14,9 +14,10 @@ const (
 	baseURL    = "api/v3"
 	citiesHTML = "cities"
 
-	cities = baseURL + "/cities"
-	hikes  = baseURL + "/hikes"
-	viking = baseURL + "/vikings"
+	cities  = baseURL + "/cities"
+	hikes   = baseURL + "/hikes"
+	viking  = baseURL + "/vikings"
+	authors = baseURL + "/authors"
 )
 
 type Handler struct {
@@ -49,6 +50,8 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.POST(viking, h.AddViking)
 	router.PUT(viking, h.UpdateViking)
 
+	router.GET(authors, h.AuthorsList)
+
 	registerStatic(router)
 }
 
@@ -74,6 +77,13 @@ func (h *Handler) errorHandler(ctx *gin.Context, errorStatusCode int, err error)
 
 func (h *Handler) successHandler(ctx *gin.Context, key string, data interface{}) {
 	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		key:      data,
+	})
+}
+
+func (h *Handler) successAddHandler(ctx *gin.Context, key string, data interface{}) {
+	ctx.JSON(http.StatusCreated, gin.H{
 		"status": "success",
 		key:      data,
 	})

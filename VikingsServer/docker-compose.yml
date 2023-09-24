@@ -16,3 +16,32 @@ services:
 volumes:
   postgresdb-data:
     driver: local
+
+# ==== ДЛЯ ХОСТИНГА =====
+#version: "3.8"
+#services:
+#  db:
+#    image: postgres:12
+#    volumes:
+#      - type: volume
+#        source: postgresdb-data
+#        target: /var/lib/postgresql/data
+#    ports:
+#      - "${DB_PORT}:5432"
+#    environment:
+#      POSTGRES_USER: ${DB_USER}
+#      POSTGRES_DB: ${DB_NAME}
+#      POSTGRES_PASSWORD: ${DB_PASS}
+#  main:
+#    container_name: go-app
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    command: ./app
+#    ports:
+#      - "80:8010"
+#    depends_on:
+#      - db
+#volumes:
+#  postgresdb-data:
+#    driver: local

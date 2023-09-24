@@ -50,7 +50,7 @@ func (h *Handler) AddHike(ctx *gin.Context) {
 		return
 	}
 
-	h.successHandler(ctx, "hike_id", hike.ID)
+	h.successAddHandler(ctx, "hike_id", hike.ID)
 }
 
 func (h *Handler) DeleteHike(ctx *gin.Context) {
