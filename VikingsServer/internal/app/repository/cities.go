@@ -20,6 +20,16 @@ func (r *Repository) CitiesById(id uint) (*ds.City, error) {
 	return &city, result.Error
 }
 
+func (r *Repository) UpdateCityImage(id string, newImageURL string) error {
+	city := ds.City{}
+	if result := r.db.First(&city, id); result.Error != nil {
+		return result.Error
+	}
+	city.ImageURL = newImageURL
+	result := r.db.Save(city)
+	return result.Error
+}
+
 func (r *Repository) DeleteCity(id uint) error {
 	var newStatus ds.CityStatus
 	if result := r.db.Where("status_name = ?", "уничтожен").First(&newStatus); result.Error != nil {

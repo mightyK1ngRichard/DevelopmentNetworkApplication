@@ -4,16 +4,16 @@ version: '3.7'
 
 # настройки и конфигурации, общие для всех контейнеров
 x-minio-common: &minio-common
-  image: quay.io/minio/minio:RELEASE.2022-10-15T19-57-03Z # устанавливаем image
+  image: quay.io/kingMinio/kingMinio:RELEASE.2022-10-15T19-57-03Z # устанавливаем image
   # команда которая выполняется при запуске контейнера
   # --console-address ":9001" - указываем запустить консоль администратора на порту 9001
   #  http://minio{1...4}/data{1...2}  - указывает ноде адреса других нод,
   # чтобы они могли связаться между собой
   # если сломается одна из нод,
   # остальные ноды это поймут и будут предпринимать действия чтобы сохранить файлы
-  command: server --console-address ":9001" http://minio{1...4}/data{1...2}
+  command: server --console-address ":9001" http://kingMinio{1...4}/data{1...2}
   environment: # env конфигурация, подробнее: https://github.com/KaymeKaydex/web-2022/tree/go-lab2/tutorials/lab2/golang#поговорим-про-переменные-окружения
-    MINIO_ACCESS_KEY: minio # пароль админа
+    MINIO_ACCESS_KEY: kingMinio # пароль админа
     MINIO_SECRET_KEY: minio124 # логин админа
   expose:
     - "9000" # открыть порты
@@ -27,7 +27,7 @@ x-minio-common: &minio-common
     timeout: 20s
     retries: 3
 
-# запускает 4 контейнера docker, в которых запущены экземпляры сервера minio.
+# запускает 4 контейнера docker, в которых запущены экземпляры сервера kingMinio.
 # используя обратный прокси-сервер nginx, балансировку нагрузки, вы можете получить доступ
 # через порт 9000.
 services:
@@ -69,7 +69,7 @@ services:
     ports:
       - "9000:9000" # форвардим порт 9000 из нашей локальной сети(localhost) (forward port) на исхоодный(внутри подсети docker)(source port)
       - "9001:9001" # левый порт - порт вашей локальной сети компьютера, таргетный. порт справа - соурс порт - порт внутри подсети докера.
-    depends_on: # не запускай nginx пока не запустится весь кластер minio
+    depends_on: # не запускай nginx пока не запустится весь кластер kingMinio
       - minio1
       - minio2
       - minio3

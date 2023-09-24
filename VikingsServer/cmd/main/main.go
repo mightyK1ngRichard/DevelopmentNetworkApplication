@@ -4,6 +4,7 @@ import (
 	"VikingsServer/internal/app/config"
 	"VikingsServer/internal/app/dsn"
 	"VikingsServer/internal/app/handler"
+	"VikingsServer/internal/app/kingMinio"
 	app "VikingsServer/internal/app/pkg"
 	"VikingsServer/internal/app/repository"
 	"fmt"
@@ -36,6 +37,7 @@ import (
 
 func main() {
 	logger := logrus.New()
+	minioClient := kingMinio.NewMinioClient(logger)
 	router := gin.Default()
 	conf, err := config.NewConfig(logger)
 	if err != nil {
@@ -50,7 +52,7 @@ func main() {
 	if errRep != nil {
 		logger.Fatalf("Error from repository: %s", err)
 	}
-	hand := handler.NewHandler(logger, rep)
+	hand := handler.NewHandler(logger, rep, minioClient)
 	application := app.NewApp(conf, router, logger, hand)
 	application.RunApp()
 }
