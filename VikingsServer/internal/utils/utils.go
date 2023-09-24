@@ -2,21 +2,19 @@ package utils
 
 import (
 	"VikingsServer/internal/app/ds"
-	"crypto/md5"
-	"encoding/hex"
 	"fmt"
+	"github.com/rs/xid"
 	"strings"
 )
 
 // MARK: - Генератор имени для фото
 
-func GenerateUniqueName(data []byte, imageName *string) error {
+func GenerateUniqueName(imageName *string) error {
 	parts := strings.Split(*imageName, ".")
 	if len(parts) > 1 {
 		fileExt := parts[len(parts)-1]
-		hash := md5.Sum(data)
-		hashStr := hex.EncodeToString(hash[:])
-		*imageName = fmt.Sprintf("%s.%s", hashStr, fileExt)
+		uniqueID := xid.New()
+		*imageName = fmt.Sprintf("%s.%s", uniqueID.String(), fileExt)
 		return nil
 	}
 	return fmt.Errorf("uncorrect file name. not fount image extension")

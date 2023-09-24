@@ -77,6 +77,16 @@ func (h *Handler) DeleteCity(ctx *gin.Context) {
 
 func (h *Handler) AddImage(ctx *gin.Context) {
 	file, header, err := ctx.Request.FormFile("file")
+	cityID := ctx.Request.FormValue("city_id")
+
+	if cityID == utils.EmptyString {
+		h.errorHandler(ctx, http.StatusBadRequest, idNotFound)
+		return
+	}
+	if header == nil || header.Size == 0 {
+		h.errorHandler(ctx, http.StatusBadRequest, headerNotFound)
+		return
+	}
 	if err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
@@ -88,9 +98,15 @@ func (h *Handler) AddImage(ctx *gin.Context) {
 			return
 		}
 	}(file)
+
+	// Upload the image to minio server.
 	newImageURL, errMinio := h.createImageInMinio(&file, header)
 	if errMinio != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, errMinio)
+		return
+	}
+	if err = h.Repository.UpdateCityImage(cityID, newImageURL); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
 

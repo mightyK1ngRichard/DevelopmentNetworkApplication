@@ -7,13 +7,13 @@ import (
 
 const (
 	BucketName = "vikings-server"
+	MinioHost  = "localhost:9000"
 )
 
 func NewMinioClient(logger *logrus.Logger) *minio.Client {
-	endpoint := "localhost:9000"
 	accessKeyID := "minio"
 	secretAccessKey := "minio124"
-	minioClient, err := minio.New(endpoint, accessKeyID, secretAccessKey, false)
+	minioClient, err := minio.New(MinioHost, accessKeyID, secretAccessKey, false)
 
 	if err != nil {
 		logger.Fatalf("error: %s", err)
