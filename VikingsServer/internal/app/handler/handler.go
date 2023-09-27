@@ -10,7 +10,6 @@ const (
 	baseURL    = "api/v3"
 	citiesHTML = "cities"
 	cities     = baseURL + "/cities"
-	hikes      = baseURL + "/hikes"
 )
 
 type Handler struct {
@@ -27,10 +26,9 @@ func NewHandler(l *logrus.Logger, r *repository.Repository) *Handler {
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET(cities, h.CitiesList)
-	router.GET(hikes, h.HikesList)
 	router.GET(citiesHTML, h.CitiesHTML)
-	router.DELETE(cities, h.DeleteCity)
 	router.POST(citiesHTML, h.DeleteCityHTML)
+	router.DELETE(cities, h.DeleteCity)
 
 	registerStatic(router)
 }

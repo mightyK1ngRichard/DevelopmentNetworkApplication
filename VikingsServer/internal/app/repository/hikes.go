@@ -6,13 +6,13 @@ import (
 
 func (r *Repository) HikesList() (*[]ds.Hike, error) {
 	var hikes []ds.Hike
-	result := r.db.Preload("Participants.Viking.CityOfBirth.Status").Preload("DestinationHikes.City.Status").Preload("Author").Preload("Status").Find(&hikes)
+	result := r.db.Preload("Participants.Viking.CityOfBirth.Status").Preload("DestinationHikes.City.Status").Preload("User").Preload("Status").Find(&hikes)
 	return &hikes, result.Error
 }
 
 func (r *Repository) HikeByID(id uint) (*ds.Hike, error) {
 	hike := ds.Hike{}
-	result := r.db.Preload("Author").Preload("Status").First(&hike, id)
+	result := r.db.Preload("User").Preload("Status").First(&hike, id)
 	return &hike, result.Error
 }
 

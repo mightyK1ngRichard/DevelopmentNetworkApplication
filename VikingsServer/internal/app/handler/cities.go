@@ -13,9 +13,7 @@ import (
 func (h *Handler) CitiesList(ctx *gin.Context) {
 	cities, err := h.Repository.CitiesList()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
@@ -27,7 +25,7 @@ func (h *Handler) CitiesHTML(ctx *gin.Context) {
 	data := ds.CityViewData{}
 	citiesList, err := h.Repository.CitiesList()
 	if err != nil {
-		// TODO: Обработать ошибку.
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
 	data.Cities = citiesList
@@ -96,9 +94,7 @@ func (h *Handler) CitiesDeleteCascade(ctx *gin.Context) {
 		return
 	}
 	if err := h.Repository.DeleteCity(request.ID); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "couldn't delete the city",
-		})
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
@@ -113,8 +109,7 @@ func (h *Handler) DeleteCityHTML(ctx *gin.Context) {
 		return
 	}
 	if err := h.Repository.DeleteCity(uint(id)); err != nil {
-		h.Logger.Error("couldn't delete city")
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete city"})
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
 	h.Logger.Info("city with id=" + "update success")
@@ -126,7 +121,6 @@ func (h *Handler) DeleteCity(ctx *gin.Context) {
 		ID string `json:"id"`
 	}
 	if err := ctx.BindJSON(&request); err != nil {
-		h.Logger.Error(err)
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
@@ -136,7 +130,6 @@ func (h *Handler) DeleteCity(ctx *gin.Context) {
 		return
 	}
 	if id == 0 {
-		h.Logger.Error("incorrect id")
 		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("incorrect id"))
 		return
 	}
