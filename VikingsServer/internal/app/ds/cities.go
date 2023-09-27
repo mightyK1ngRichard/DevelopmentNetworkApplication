@@ -1,9 +1,6 @@
 package ds
 
-import "gorm.io/gorm"
-
 type City struct {
-	gorm.Model
 	ID          uint       `json:"id" gorm:"primary_key"`
 	CityName    string     `json:"city_name" gorm:"type:varchar(30);not null"`
 	StatusID    uint       `json:"status_id"`

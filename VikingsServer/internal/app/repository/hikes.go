@@ -5,34 +5,27 @@ import (
 )
 
 func (r *Repository) HikesList() (*[]ds.Hike, error) {
-	return nil, nil
-}
-
-/*
-func (r *Repository) HikesList() (*[]ds.Hike, error) {
-	rows, err := r.db.Query(`SELECT * FROM hikes`)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
 	var hikes []ds.Hike
-	for rows.Next() {
-		h := ds.Hike{}
-		if err := rows.Scan(
-			&h.ID,
-			&h.HikeName,
-			&h.DateStart,
-			&h.DateEnd,
-			&h.AuthorID,
-			&h.Status,
-			&h.Description,
-		); err != nil {
-			r.logger.Error(err)
-			continue
-		}
-		hikes = append(hikes, h)
-	}
-
-	return &hikes, nil
+	result := r.db.Preload("Participants.Viking.CityOfBirth.Status").Preload("DestinationHikes.City.Status").Preload("Author").Preload("Status").Find(&hikes)
+	return &hikes, result.Error
 }
-*/
+
+func (r *Repository) HikeByID(id uint) (*ds.Hike, error) {
+	hike := ds.Hike{}
+	result := r.db.Preload("Author").Preload("Status").First(&hike, id)
+	return &hike, result.Error
+}
+
+func (r *Repository) DeleteHike(id uint) error {
+	hike := ds.Hike{}
+	if result := r.db.First(&hike, id); result.Error != nil {
+		return result.Error
+	}
+	var newStatus ds.HikeStatus
+	if result := r.db.Where("status_name = ?", "удалён").First(&newStatus); result.Error != nil {
+		return result.Error
+	}
+	hike.StatusID = newStatus.ID
+	result := r.db.Save(&hike)
+	return result.Error
+}
