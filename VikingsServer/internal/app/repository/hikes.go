@@ -7,13 +7,13 @@ import (
 
 func (r *Repository) HikesList() (*[]ds.Hike, error) {
 	var hikes []ds.Hike
-	result := r.db.Preload("Participants.Viking.CityOfBirth.Status").Preload("DestinationHikes.City.Status").Preload("Author").Preload("Status").Find(&hikes)
+	result := r.db.Preload("Status").Preload("DestinationHikes.City.Status").Preload("User").Preload("Status").Find(&hikes)
 	return &hikes, result.Error
 }
 
 func (r *Repository) HikeByID(id uint) (*ds.Hike, error) {
 	hike := ds.Hike{}
-	result := r.db.Preload("Author").Preload("Status").First(&hike, id)
+	result := r.db.Preload("User").Preload("Status").First(&hike, id)
 	return &hike, result.Error
 }
 
@@ -28,7 +28,7 @@ func (r *Repository) DeleteHike(id uint) error {
 		return result.Error
 	}
 	var newStatus ds.HikeStatus
-	if result := r.db.Where("status_name = ?", "удалён").First(&newStatus); result.Error != nil {
+	if result := r.db.Where("status_name = ?", utils.DeletedString).First(&newStatus); result.Error != nil {
 		return result.Error
 	}
 	hike.StatusID = newStatus.ID
@@ -41,25 +41,31 @@ func (r *Repository) UpdateHike(updatedHike *ds.Hike) error {
 	if result := r.db.First(&oldHike, updatedHike.ID); result.Error != nil {
 		return result.Error
 	}
-	if updatedHike.HikeName != utils.EmptyString {
+	if updatedHike.HikeName != "" {
 		oldHike.HikeName = updatedHike.HikeName
 	}
-	if updatedHike.DateEnd.String() != utils.EmptyDate {
-		oldHike.DateStart = updatedHike.DateStart
+	if updatedHike.DateCreated.String() != utils.EmptyDate {
+		oldHike.DateCreated = updatedHike.DateCreated
 	}
 	if updatedHike.DateEnd.String() != utils.EmptyDate {
 		oldHike.DateEnd = updatedHike.DateEnd
 	}
-	if updatedHike.DateStartPreparing.String() != utils.EmptyDate {
-		oldHike.DateStartPreparing = updatedHike.DateStartPreparing
+	if updatedHike.DateStartOfProcessing.String() != utils.EmptyDate {
+		oldHike.DateStartOfProcessing = updatedHike.DateStartOfProcessing
 	}
-	if updatedHike.AuthorID != utils.EmptyInt {
-		oldHike.AuthorID = updatedHike.AuthorID
+	if updatedHike.DateApprove.String() != utils.EmptyDate {
+		oldHike.DateApprove = updatedHike.DateApprove
+	}
+	if updatedHike.DateStartHike.String() != utils.EmptyDate {
+		oldHike.DateStartHike = updatedHike.DateStartHike
+	}
+	if updatedHike.UserID != utils.EmptyInt {
+		oldHike.UserID = updatedHike.UserID
 	}
 	if updatedHike.StatusID != utils.EmptyInt {
 		oldHike.StatusID = updatedHike.StatusID
 	}
-	if updatedHike.Description != utils.EmptyString {
+	if updatedHike.Description != "" {
 		oldHike.Description = updatedHike.Description
 	}
 	*updatedHike = oldHike

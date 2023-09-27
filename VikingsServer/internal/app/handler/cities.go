@@ -79,7 +79,7 @@ func (h *Handler) AddImage(ctx *gin.Context) {
 	file, header, err := ctx.Request.FormFile("file")
 	cityID := ctx.Request.FormValue("city_id")
 
-	if cityID == utils.EmptyString {
+	if cityID == "" {
 		h.errorHandler(ctx, http.StatusBadRequest, idNotFound)
 		return
 	}

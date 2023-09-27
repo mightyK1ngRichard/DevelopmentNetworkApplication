@@ -87,14 +87,17 @@ func (h *Handler) UpdateHike(ctx *gin.Context) {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
+
 	h.successHandler(ctx, "updated_hike", gin.H{
-		"id":                   updatedHike.ID,
-		"hike_name":            updatedHike.HikeName,
-		"date_start":           updatedHike.DateStart,
-		"date_end":             updatedHike.DateEnd,
-		"date_start_preparing": updatedHike.DateStartPreparing,
-		"author_id":            updatedHike.AuthorID,
-		"status_id":            updatedHike.StatusID,
-		"description":          updatedHike.Description,
+		"id":                       updatedHike.ID,
+		"hike_name":                updatedHike.HikeName,
+		"date_created":             updatedHike.DateCreated,
+		"date_end":                 updatedHike.DateEnd,
+		"date_start_of_processing": updatedHike.DateStartOfProcessing,
+		"date_approve":             updatedHike.DateApprove,
+		"date_start_hike":          updatedHike.DateStartHike,
+		"user_id":                  updatedHike.UserID,
+		"status_id":                updatedHike.StatusID,
+		"description":              updatedHike.Description,
 	})
 }

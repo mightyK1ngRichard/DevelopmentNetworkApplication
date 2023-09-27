@@ -2,6 +2,7 @@ package repository
 
 import (
 	"VikingsServer/internal/app/ds"
+	"VikingsServer/internal/utils"
 	"fmt"
 )
 
@@ -9,7 +10,7 @@ func (r *Repository) CitiesList() (*[]ds.City, error) {
 	var cities []ds.City
 	result := r.db.Preload("Status").Where(
 		`status_id IN (SELECT id FROM city_statuses WHERE status_name = ? LIMIT 1)`,
-		"существует",
+		utils.ExistsString,
 	).Find(&cities)
 	return &cities, result.Error
 }
@@ -32,7 +33,7 @@ func (r *Repository) UpdateCityImage(id string, newImageURL string) error {
 
 func (r *Repository) DeleteCity(id uint) error {
 	var newStatus ds.CityStatus
-	if result := r.db.Where("status_name = ?", "уничтожен").First(&newStatus); result.Error != nil {
+	if result := r.db.Where("status_name = ?", utils.DestroyedString).First(&newStatus); result.Error != nil {
 		return result.Error
 	}
 	if newStatus.ID == 0 {
