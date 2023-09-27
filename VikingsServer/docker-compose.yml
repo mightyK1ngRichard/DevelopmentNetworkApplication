@@ -12,7 +12,7 @@ x-minio-common: &minio-common
     # MINIO_ROOT_USER: minioadmin
     # MINIO_ROOT_PASSWORD: minioadmin
   healthcheck:
-    test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+    test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
     interval: 30s
     timeout: 20s
     retries: 3
@@ -83,32 +83,3 @@ volumes:
   data3-2:
   data4-1:
   data4-2:
-
-# ==== ДЛЯ ХОСТИНГА =====
-#version: "3.8"
-#services:
-#  db:
-#    image: postgres:12
-#    volumes:
-#      - type: volume
-#        source: postgresdb-data
-#        target: /var/lib/postgresql/data
-#    ports:
-#      - "${DB_PORT}:5432"
-#    environment:
-#      POSTGRES_USER: ${DB_USER}
-#      POSTGRES_DB: ${DB_NAME}
-#      POSTGRES_PASSWORD: ${DB_PASS}
-#  main:
-#    container_name: go-app
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    command: ./app
-#    ports:
-#      - "80:8010"
-#    depends_on:
-#      - db
-#volumes:
-#  postgresdb-data:
-#    driver: local
