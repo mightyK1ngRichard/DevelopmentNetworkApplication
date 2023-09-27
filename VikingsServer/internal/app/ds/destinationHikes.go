@@ -6,5 +6,5 @@ type DestinationHikes struct {
 	HikeID       uint `json:"hike_id"`
 	SerialNumber int  `json:"serial_number"`
 	City         City `json:"city" gorm:"foreignkey:CityID"`
-	Hike         Hike `json:"-" gorm:"foreignkey:HikeID"`
+	Hike         Hike `json:"hike" gorm:"foreignkey:HikeID"`
 }
