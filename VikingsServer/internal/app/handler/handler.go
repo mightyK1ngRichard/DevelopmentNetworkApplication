@@ -18,8 +18,7 @@ const (
 	cities       = baseURL + "/cities"
 	addCityImage = baseURL + "/cities/upload-image"
 	hikes        = baseURL + "/hikes"
-	viking       = baseURL + "/vikings"
-	authors      = baseURL + "/authors"
+	users        = baseURL + "/users"
 )
 
 type Handler struct {
@@ -37,25 +36,21 @@ func NewHandler(l *logrus.Logger, r *repository.Repository, m *minio.Client) *Ha
 }
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
+	router.GET(citiesHTML, h.CitiesHTML)
+	router.POST(citiesHTML, h.DeleteCityHTML)
+
 	router.GET(cities, h.CitiesList)
 	router.POST(cities, h.AddCity)
 	router.POST(addCityImage, h.AddImage)
 	router.PUT(cities, h.UpdateCity)
 	router.DELETE(cities, h.DeleteCity)
 
-	router.GET(citiesHTML, h.CitiesHTML)
-	router.POST(citiesHTML, h.DeleteCityHTML)
-
 	router.GET(hikes, h.HikesList)
 	router.POST(hikes, h.AddHike)
 	router.DELETE(hikes, h.DeleteHike)
 	router.PUT(hikes, h.UpdateHike)
 
-	router.GET(viking, h.VikingsList)
-	router.POST(viking, h.AddViking)
-	router.PUT(viking, h.UpdateViking)
-
-	router.GET(authors, h.AuthorsList)
+	router.GET(users, h.UsersList)
 
 	registerStatic(router)
 }

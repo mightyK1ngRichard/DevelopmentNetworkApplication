@@ -21,10 +21,8 @@ func main() {
 	if err := db.AutoMigrate(
 		&ds.City{},
 		&ds.DestinationHikes{},
-		&ds.ExpeditionParticipant{},
 		&ds.Hike{},
-		&ds.Viking{},
-		&ds.Author{},
+		&ds.User{},
 		&ds.CityStatus{},
 		&ds.HikeStatus{},
 	); err != nil {

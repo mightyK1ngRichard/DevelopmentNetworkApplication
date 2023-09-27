@@ -5,12 +5,12 @@ import (
 	"net/http"
 )
 
-func (h *Handler) AuthorsList(ctx *gin.Context) {
-	authors, err := h.Repository.AuthorsList()
+func (h *Handler) UsersList(ctx *gin.Context) {
+	users, err := h.Repository.UsersList()
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
-	h.successHandler(ctx, "authors", authors)
+	h.successHandler(ctx, "users", users)
 }
