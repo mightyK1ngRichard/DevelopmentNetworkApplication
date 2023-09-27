@@ -35,9 +35,6 @@ DELETE  http://localhost:7070/api/v3/hikes
 ```
 
 ```http
-GET     http://localhost:7070/api/v3/vikings
-GET     http://localhost:7070/api/v3/vikings?viking=2
-POST    http://localhost:7070/api/v3/vikings
-PUT     http://localhost:7070/api/v3/vikings
-DELETE  http://localhost:7070/api/v3/vikings
+GET     http://localhost:7070/api/v3/destination-hikes
+POST    http://localhost:7070/api/v3/destination-hikes
 ```

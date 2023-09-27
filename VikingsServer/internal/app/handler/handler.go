@@ -15,10 +15,11 @@ const (
 	baseURL    = "api/v3"
 	citiesHTML = "cities"
 
-	cities       = baseURL + "/cities"
-	addCityImage = baseURL + "/cities/upload-image"
-	hikes        = baseURL + "/hikes"
-	users        = baseURL + "/users"
+	cities           = baseURL + "/cities"
+	addCityImage     = baseURL + "/cities/upload-image"
+	hikes            = baseURL + "/hikes"
+	users            = baseURL + "/users"
+	DestinationHikes = baseURL + "/destination-hikes"
 )
 
 type Handler struct {
@@ -51,6 +52,9 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.PUT(hikes, h.UpdateHike)
 
 	router.GET(users, h.UsersList)
+
+	router.GET(DestinationHikes, h.DestinationHikesList)
+	router.POST(DestinationHikes, h.AddDestinationToHike)
 
 	registerStatic(router)
 }
