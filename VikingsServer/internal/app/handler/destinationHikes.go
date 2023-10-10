@@ -17,23 +17,47 @@ func (h *Handler) DestinationHikesList(ctx *gin.Context) {
 }
 
 func (h *Handler) AddDestinationToHike(ctx *gin.Context) {
-	var destinationHike ds.DestinationHikes
-	if err := ctx.BindJSON(&destinationHike); err != nil {
+	var body struct {
+		Hike         ds.Hike `json:"hike"`
+		City         ds.City `json:"city"`
+		SerialNumber int     `json:"serial_number"`
+	}
+	if err := ctx.BindJSON(&body); err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if destinationHike.ID != 0 {
-		h.errorHandler(ctx, http.StatusBadRequest, idMustBeEmpty)
-		return
-	}
-	if destinationHike.SerialNumber == 0 {
+	if body.SerialNumber == 0 {
 		h.errorHandler(ctx, http.StatusBadRequest, serialNumberCannotBeEmpty)
 		return
 	}
-	if destinationHike.HikeID == 0 || destinationHike.CityID == 0 {
+
+	/// Определяем, какой метод использовать. С id или без
+	if body.Hike.ID == 0 {
+		if errorCode, err := h.createHike(&body.Hike); err != nil {
+			h.errorHandler(ctx, errorCode, err)
+			return
+		}
+	}
+
+	/// Определяем, какой метод использовать. С id или без
+	if body.City.ID == 0 {
+		if errorCode, err := h.createCity(&body.City); err != nil {
+			h.errorHandler(ctx, errorCode, err)
+			return
+		}
+	}
+
+	if body.Hike.ID == 0 || body.City.ID == 0 {
 		h.errorHandler(ctx, http.StatusBadRequest, destinationOrCityIsEmpty)
 		return
 	}
+
+	destinationHike := ds.DestinationHikes{
+		City:         body.City,
+		Hike:         body.Hike,
+		SerialNumber: body.SerialNumber,
+	}
+
 	if err := h.Repository.AddDestinationToHike(&destinationHike); err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return

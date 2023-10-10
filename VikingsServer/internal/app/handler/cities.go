@@ -32,6 +32,18 @@ func (h *Handler) CitiesList(ctx *gin.Context) {
 		return
 	}
 
+	searchText := ctx.Query("search")
+	if searchText != "" {
+		var filteredCities []ds.City
+		for _, city := range *cities {
+			if strings.Contains(strings.ToLower(city.CityName), strings.ToLower(searchText)) {
+				filteredCities = append(filteredCities, city)
+			}
+		}
+		h.successHandler(ctx, "cities", filteredCities)
+		return
+	}
+
 	h.successHandler(ctx, "cities", cities)
 }
 
@@ -119,20 +131,26 @@ func (h *Handler) AddCity(ctx *gin.Context) {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if newCity.ID != 0 {
-		h.errorHandler(ctx, http.StatusBadRequest, idMustBeEmpty)
-		return
-	}
-	if newCity.CityName == "" {
-		h.errorHandler(ctx, http.StatusBadRequest, cityCannotBeEmpty)
-		return
-	}
-	if err := h.Repository.AddCity(&newCity); err != nil {
-		h.errorHandler(ctx, http.StatusBadRequest, err)
+
+	if errorCode, err := h.createCity(&newCity); err != nil {
+		h.errorHandler(ctx, errorCode, err)
 		return
 	}
 
 	h.successAddHandler(ctx, "city_id", newCity.ID)
+}
+
+func (h *Handler) createCity(city *ds.City) (int, error) {
+	if city.ID != 0 {
+		return http.StatusBadRequest, idMustBeEmpty
+	}
+	if city.CityName == "" {
+		return http.StatusBadRequest, cityCannotBeEmpty
+	}
+	if err := h.Repository.AddCity(city); err != nil {
+		return http.StatusBadRequest, err
+	}
+	return 0, nil
 }
 
 func (h *Handler) UpdateCity(ctx *gin.Context) {

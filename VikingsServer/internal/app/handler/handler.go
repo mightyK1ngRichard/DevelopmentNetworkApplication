@@ -67,6 +67,12 @@ func registerStatic(router *gin.Engine) {
 	router.Static("/img", "./static")
 }
 
+func registerFrontHeaders(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "http://localhost:5173")
+	ctx.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+	ctx.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+}
+
 // MARK: - Error handler
 
 func (h *Handler) errorHandler(ctx *gin.Context, errorStatusCode int, err error) {
@@ -80,6 +86,7 @@ func (h *Handler) errorHandler(ctx *gin.Context, errorStatusCode int, err error)
 // MARK: - Success handler
 
 func (h *Handler) successHandler(ctx *gin.Context, key string, data interface{}) {
+	registerFrontHeaders(ctx)
 	ctx.JSON(http.StatusOK, gin.H{
 		"status": "success",
 		key:      data,

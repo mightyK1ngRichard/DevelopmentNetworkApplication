@@ -41,16 +41,23 @@ func (h *Handler) AddHike(ctx *gin.Context) {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
-	if hike.ID != 0 {
-		h.errorHandler(ctx, http.StatusBadRequest, idMustBeEmpty)
-		return
-	}
-	if err := h.Repository.AddHike(&hike); err != nil {
-		h.errorHandler(ctx, http.StatusInternalServerError, err)
+
+	if errorCode, err := h.createHike(&hike); err != nil {
+		h.errorHandler(ctx, errorCode, err)
 		return
 	}
 
 	h.successAddHandler(ctx, "hike_id", hike.ID)
+}
+
+func (h *Handler) createHike(hike *ds.Hike) (int, error) {
+	if hike.ID != 0 {
+		return http.StatusBadRequest, idMustBeEmpty
+	}
+	if err := h.Repository.AddHike(hike); err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return 0, nil
 }
 
 func (h *Handler) DeleteHike(ctx *gin.Context) {
