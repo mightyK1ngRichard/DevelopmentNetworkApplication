@@ -58,6 +58,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET(DestinationHikes, h.DestinationHikesList)
 	router.POST(DestinationHikes, h.AddDestinationToHike)
 	router.PUT(DestinationHikes, h.UpdateDestinationHikeNumber)
+	router.DELETE(DestinationHikes, h.DeleteDestinationToHike)
 
 	registerStatic(router)
 }

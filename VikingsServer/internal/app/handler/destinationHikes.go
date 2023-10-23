@@ -38,6 +38,26 @@ func (h *Handler) UpdateDestinationHikeNumber(ctx *gin.Context) {
 	h.successHandler(ctx, "id", dh.ID)
 }
 
+func (h *Handler) DeleteDestinationToHike(ctx *gin.Context) {
+	var body struct {
+		ID int `json:"id"`
+	}
+	if err := ctx.BindJSON(&body); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+	if body.ID == 0 {
+		h.errorHandler(ctx, http.StatusBadRequest, idNotFound)
+		return
+	}
+	if err := h.Repository.DeleteDestinationToHike(body.ID); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	h.successHandler(ctx, "deleted_destination_hike", body.ID)
+}
+
 func (h *Handler) AddDestinationToHike(ctx *gin.Context) {
 	var body struct {
 		Hike         ds.Hike `json:"hike"`

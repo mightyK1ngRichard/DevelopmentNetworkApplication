@@ -13,6 +13,14 @@ func (r *Repository) AddDestinationToHike(dh *ds.DestinationHikes) error {
 	return result.Error
 }
 
+func (r *Repository) DeleteDestinationToHike(id int) error {
+	var dh ds.DestinationHikes
+	if result := r.db.First(&dh, id); result.Error != nil {
+		return result.Error
+	}
+	return r.db.Delete(&dh).Error
+}
+
 func (r *Repository) UpdateDestinationHikeNumber(dhID int, number int) (*ds.DestinationHikes, error) {
 	var updatedDestinationHike ds.DestinationHikes
 	if result := r.db.First(&updatedDestinationHike, dhID); result.Error != nil {
