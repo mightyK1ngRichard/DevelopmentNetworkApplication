@@ -3,6 +3,7 @@ package handler
 import (
 	"VikingsServer/internal/app/ds"
 	"VikingsServer/internal/utils"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"mime/multipart"
 	"net/http"
@@ -29,6 +30,18 @@ func (h *Handler) CitiesList(ctx *gin.Context) {
 	cities, err := h.Repository.CitiesList()
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	searchText := ctx.Query("search")
+	if searchText != "" {
+		var filteredCities []ds.City
+		for _, city := range *cities {
+			if strings.Contains(strings.ToLower(city.CityName), strings.ToLower(searchText)) {
+				filteredCities = append(filteredCities, city)
+			}
+		}
+		h.successHandler(ctx, "cities", filteredCities)
 		return
 	}
 
@@ -100,39 +113,77 @@ func (h *Handler) AddImage(ctx *gin.Context) {
 	}(file)
 
 	// Upload the image to minio server.
-	newImageURL, errMinio := h.createImageInMinio(&file, header)
-	if errMinio != nil {
-		h.errorHandler(ctx, http.StatusInternalServerError, errMinio)
-		return
-	}
-	if err = h.Repository.UpdateCityImage(cityID, newImageURL); err != nil {
-		h.errorHandler(ctx, http.StatusInternalServerError, err)
+	newImageURL, errorCode, errImage := h.createImageCity(&file, header, cityID)
+	if errImage != nil {
+		h.errorHandler(ctx, errorCode, errImage)
 		return
 	}
 
 	h.successAddHandler(ctx, "image_url", newImageURL)
 }
 
+// Функция записи фото в минио
+func (h *Handler) createImageCity(
+	file *multipart.File,
+	header *multipart.FileHeader,
+	cityID string,
+) (string, int, error) {
+	newImageURL, errMinio := h.createImageInMinio(file, header)
+	if errMinio != nil {
+		return "", http.StatusInternalServerError, errMinio
+	}
+	if err := h.Repository.UpdateCityImage(cityID, newImageURL); err != nil {
+		return "", http.StatusInternalServerError, err
+	}
+	return newImageURL, 0, nil
+}
+
 func (h *Handler) AddCity(ctx *gin.Context) {
-	var newCity ds.City
-	if err := ctx.BindJSON(&newCity); err != nil {
-		h.errorHandler(ctx, http.StatusBadRequest, err)
-		return
-	}
-	if newCity.ID != 0 {
-		h.errorHandler(ctx, http.StatusBadRequest, idMustBeEmpty)
-		return
-	}
-	if newCity.CityName == "" {
-		h.errorHandler(ctx, http.StatusBadRequest, cityCannotBeEmpty)
-		return
-	}
-	if err := h.Repository.AddCity(&newCity); err != nil {
+	file, header, err := ctx.Request.FormFile("image_url")
+	if err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
 
+	cityName := ctx.Request.FormValue("city_name")
+	statusID := ctx.Request.FormValue("status_id")
+	description := ctx.Request.FormValue("description")
+	intStatus, errStatusInt := strconv.Atoi(statusID)
+	if errStatusInt != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, errStatusInt)
+		return
+	}
+
+	newCity := ds.City{
+		CityName:    cityName,
+		StatusID:    uint(intStatus),
+		Description: description,
+	}
+	if errorCode, errCreate := h.createCity(&newCity); err != nil {
+		h.errorHandler(ctx, errorCode, errCreate)
+		return
+	}
+	newImageURL, errCode, errDB := h.createImageCity(&file, header, fmt.Sprintf("%d", newCity.ID))
+	if errDB != nil {
+		h.errorHandler(ctx, errCode, errDB)
+		return
+	}
+	newCity.ImageURL = newImageURL
+
 	h.successAddHandler(ctx, "city_id", newCity.ID)
+}
+
+func (h *Handler) createCity(city *ds.City) (int, error) {
+	if city.ID != 0 {
+		return http.StatusBadRequest, idMustBeEmpty
+	}
+	if city.CityName == "" {
+		return http.StatusBadRequest, cityCannotBeEmpty
+	}
+	if err := h.Repository.AddCity(city); err != nil {
+		return http.StatusBadRequest, err
+	}
+	return 0, nil
 }
 
 func (h *Handler) UpdateCity(ctx *gin.Context) {

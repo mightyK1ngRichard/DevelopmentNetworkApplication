@@ -13,7 +13,7 @@ func (r *Repository) HikesList() (*[]ds.Hike, error) {
 
 func (r *Repository) HikeByID(id uint) (*ds.Hike, error) {
 	hike := ds.Hike{}
-	result := r.db.Preload("User").Preload("Status").First(&hike, id)
+	result := r.db.Preload("User").Preload("DestinationHikes.Hike.Status").Preload("DestinationHikes.Hike.User").Preload("DestinationHikes.City.Status").Preload("Status").First(&hike, id)
 	return &hike, result.Error
 }
 
