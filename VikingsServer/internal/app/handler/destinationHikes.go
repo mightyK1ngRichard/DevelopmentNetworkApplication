@@ -16,6 +16,28 @@ func (h *Handler) DestinationHikesList(ctx *gin.Context) {
 	h.successHandler(ctx, "destination_hikes", destinationHikes)
 }
 
+func (h *Handler) UpdateDestinationHikeNumber(ctx *gin.Context) {
+	var body struct {
+		DestinationHikeID int `json:"id"`
+		SerialNumber      int `json:"serial_number"`
+	}
+	if err := ctx.BindJSON(&body); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+	if body.SerialNumber == 0 || body.DestinationHikeID == 0 {
+		h.errorHandler(ctx, http.StatusBadRequest, serialNumberAndDestinationHikeIDCannotBeEmpty)
+		return
+	}
+	dh, err := h.Repository.UpdateDestinationHikeNumber(body.DestinationHikeID, body.SerialNumber)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	h.successHandler(ctx, "id", dh.ID)
+}
+
 func (h *Handler) AddDestinationToHike(ctx *gin.Context) {
 	var body struct {
 		Hike         ds.Hike `json:"hike"`

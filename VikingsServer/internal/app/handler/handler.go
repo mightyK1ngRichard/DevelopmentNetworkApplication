@@ -15,11 +15,12 @@ const (
 	baseURL    = "api/v3"
 	citiesHTML = "cities"
 
-	cities           = baseURL + "/cities"
-	addCityImage     = baseURL + "/cities/upload-image"
-	hikes            = baseURL + "/hikes"
-	users            = baseURL + "/users"
-	DestinationHikes = baseURL + "/destination-hikes"
+	cities            = baseURL + "/cities"
+	addCityImage      = baseURL + "/cities/upload-image"
+	hikes             = baseURL + "/hikes"
+	hikesUpdateStatus = baseURL + "/hikes-update-status"
+	users             = baseURL + "/users"
+	DestinationHikes  = baseURL + "/destination-hikes"
 )
 
 type Handler struct {
@@ -37,8 +38,8 @@ func NewHandler(l *logrus.Logger, r *repository.Repository, m *minio.Client) *Ha
 }
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
-	router.GET(citiesHTML, h.CitiesHTML)
-	router.POST(citiesHTML, h.DeleteCityHTML)
+	//router.GET(citiesHTML, h.CitiesHTML)
+	//router.POST(citiesHTML, h.DeleteCityHTML)
 
 	router.GET(cities, h.CitiesList)
 	router.POST(cities, h.AddCity)
@@ -47,14 +48,16 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.DELETE(cities, h.DeleteCity)
 
 	router.GET(hikes, h.HikesList)
-	router.POST(hikes, h.AddHike)
+	//router.POST(hikes, h.AddHike)
 	router.DELETE(hikes, h.DeleteHike)
+	router.PUT(hikesUpdateStatus, h.UpdateHikeStatus)
 	router.PUT(hikes, h.UpdateHike)
 
 	router.GET(users, h.UsersList)
 
 	router.GET(DestinationHikes, h.DestinationHikesList)
 	router.POST(DestinationHikes, h.AddDestinationToHike)
+	router.PUT(DestinationHikes, h.UpdateDestinationHikeNumber)
 
 	registerStatic(router)
 }

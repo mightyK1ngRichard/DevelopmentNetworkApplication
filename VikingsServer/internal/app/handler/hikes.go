@@ -2,6 +2,7 @@ package handler
 
 import (
 	"VikingsServer/internal/app/ds"
+	"VikingsServer/internal/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -78,6 +79,45 @@ func (h *Handler) DeleteHike(ctx *gin.Context) {
 	}
 
 	h.successHandler(ctx, "hike_id", request.ID)
+}
+
+func (h *Handler) UpdateHikeStatus(ctx *gin.Context) {
+	var updatedHike ds.Hike
+	if err := ctx.BindJSON(&updatedHike); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+	if updatedHike.ID != 0 ||
+		updatedHike.HikeName != "" ||
+		updatedHike.DateCreated.String() != utils.EmptyDate ||
+		updatedHike.DateEnd.String() != utils.EmptyDate ||
+		updatedHike.DateStartOfProcessing.String() != utils.EmptyDate ||
+		updatedHike.DateApprove.String() != utils.EmptyDate ||
+		updatedHike.DateStartHike.String() != utils.EmptyDate ||
+		updatedHike.UserID != 0 ||
+		updatedHike.Description != "" ||
+		updatedHike.Leader != "" {
+		h.errorHandler(ctx, http.StatusBadRequest, mustBeJustStatus)
+		return
+	}
+
+	if err := h.Repository.UpdateHike(&updatedHike); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	h.successHandler(ctx, "updated_hike", gin.H{
+		"id":                       updatedHike.ID,
+		"hike_name":                updatedHike.HikeName,
+		"date_created":             updatedHike.DateCreated,
+		"date_end":                 updatedHike.DateEnd,
+		"date_start_of_processing": updatedHike.DateStartOfProcessing,
+		"date_approve":             updatedHike.DateApprove,
+		"date_start_hike":          updatedHike.DateStartHike,
+		"user_id":                  updatedHike.UserID,
+		"status_id":                updatedHike.StatusID,
+		"description":              updatedHike.Description,
+	})
 }
 
 func (h *Handler) UpdateHike(ctx *gin.Context) {
