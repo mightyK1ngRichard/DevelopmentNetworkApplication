@@ -13,4 +13,5 @@ var (
 	mustBeJustStatus                              = errors.New("must be only `status_id`")
 	tokenIsNil                                    = errors.New("token is nil")
 	cannotCreateToken                             = errors.New("cannot create str token")
+	prefixIsNil                                   = errors.New("prefix not found")
 )

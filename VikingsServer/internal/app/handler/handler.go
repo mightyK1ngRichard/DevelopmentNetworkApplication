@@ -65,6 +65,9 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.PUT(DestinationHikes, h.UpdateDestinationHikeNumber)
 	router.DELETE(DestinationHikes, h.DeleteDestinationToHike)
 
+	// TODO: Delete this endpoint
+	router.Use(h.WithAuthCheck).GET("/ping", h.Ping)
+
 	registerStatic(router)
 }
 
@@ -107,4 +110,11 @@ func (h *Handler) successAddHandler(ctx *gin.Context, key string, data interface
 		"status": "success",
 		key:      data,
 	})
+}
+
+// MARK: - TODO: Delete
+
+func (h *Handler) Ping(gCtx *gin.Context) {
+	name := gCtx.Param("name")
+	gCtx.String(http.StatusOK, "Hello, %s", name)
 }
