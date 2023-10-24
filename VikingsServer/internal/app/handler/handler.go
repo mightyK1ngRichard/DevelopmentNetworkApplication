@@ -4,6 +4,7 @@ import (
 	_ "VikingsServer/docs"
 	"VikingsServer/internal/app/config"
 	"VikingsServer/internal/app/repository"
+	"VikingsServer/internal/app/role"
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go"
 	"github.com/sirupsen/logrus"
@@ -13,15 +14,15 @@ import (
 )
 
 const (
-	baseURL    = "api/v3"
-	citiesHTML = "cities"
-
+	baseURL           = "api/v3"
+	citiesHTML        = "cities"
 	cities            = baseURL + "/cities"
 	addCityImage      = baseURL + "/cities/upload-image"
 	hikes             = baseURL + "/hikes"
 	hikesUpdateStatus = baseURL + "/hikes-update-status"
 	users             = baseURL + "/users"
-	login             = baseURL + "/login"
+	login             = users + "/login"
+	signup            = users + "/sign_up"
 	DestinationHikes  = baseURL + "/destination-hikes"
 )
 
@@ -59,6 +60,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 
 	router.GET(users, h.UsersList)
 	router.POST(login, h.Login)
+	router.POST(signup, h.Register)
 
 	router.GET(DestinationHikes, h.DestinationHikesList)
 	router.POST(DestinationHikes, h.AddDestinationToHike)
@@ -66,7 +68,10 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.DELETE(DestinationHikes, h.DeleteDestinationToHike)
 
 	// TODO: Delete this endpoint
-	router.Use(h.WithAuthCheck).GET("/ping", h.Ping)
+	// никто не имеет доступа
+	//router.Use(h.WithAuthCheck()).GET("/ping", h.Ping)
+	// или ниженаписанное значит что доступ имеют менеджер и админ
+	router.Use(h.WithAuthCheck(role.Manager, role.Admin)).GET("/ping", h.Ping)
 
 	registerStatic(router)
 }

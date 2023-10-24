@@ -1,6 +1,7 @@
 package ds
 
 import (
+	"VikingsServer/internal/app/role"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 )
@@ -8,5 +9,5 @@ import (
 type JWTClaims struct {
 	jwt.StandardClaims
 	UserUUID uuid.UUID `json:"user_uuid"`
-	Scopes   []string  `json:"scopes" json:"scopes"`
+	Role     role.Role
 }

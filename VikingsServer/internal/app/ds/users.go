@@ -1,6 +1,7 @@
 package ds
 
 import (
+	"VikingsServer/internal/app/role"
 	"time"
 )
 
@@ -12,4 +13,5 @@ type User struct {
 	ImageURL   string    `json:"image_url" gorm:"type:varchar(500);default:'http://localhost:7070/static/img/mock-photo.png'"`
 	Login      string    `json:"login"`
 	Password   string    `json:"password"`
+	Role       role.Role `json:"role" sql:"type:string"`
 }
