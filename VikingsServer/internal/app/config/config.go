@@ -1,15 +1,24 @@
 package config
 
 import (
+	"github.com/golang-jwt/jwt"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
+	"time"
 )
 
 type Config struct {
 	ServiceHost string
 	ServicePort int
+	JWT         JWTConfig
+}
+
+type JWTConfig struct {
+	Token         string
+	ExpiresIn     time.Duration
+	SigningMethod jwt.SigningMethod
 }
 
 func NewConfig(log *logrus.Logger) (*Config, error) {
@@ -39,6 +48,8 @@ func NewConfig(log *logrus.Logger) (*Config, error) {
 	}
 
 	log.Info("config parsed")
-
+	cfg.JWT.Token = "test"
+	cfg.JWT.ExpiresIn = time.Hour
+	cfg.JWT.SigningMethod = jwt.SigningMethodHS256
 	return cfg, nil
 }

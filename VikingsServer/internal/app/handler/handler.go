@@ -2,6 +2,7 @@ package handler
 
 import (
 	_ "VikingsServer/docs"
+	"VikingsServer/internal/app/config"
 	"VikingsServer/internal/app/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go"
@@ -20,6 +21,7 @@ const (
 	hikes             = baseURL + "/hikes"
 	hikesUpdateStatus = baseURL + "/hikes-update-status"
 	users             = baseURL + "/users"
+	login             = baseURL + "/login"
 	DestinationHikes  = baseURL + "/destination-hikes"
 )
 
@@ -27,13 +29,15 @@ type Handler struct {
 	Logger     *logrus.Logger
 	Repository *repository.Repository
 	Minio      *minio.Client
+	Config     *config.Config
 }
 
-func NewHandler(l *logrus.Logger, r *repository.Repository, m *minio.Client) *Handler {
+func NewHandler(l *logrus.Logger, r *repository.Repository, m *minio.Client, conf *config.Config) *Handler {
 	return &Handler{
 		Logger:     l,
 		Repository: r,
 		Minio:      m,
+		Config:     conf,
 	}
 }
 
@@ -54,6 +58,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.PUT(hikes, h.UpdateHike)
 
 	router.GET(users, h.UsersList)
+	router.POST(login, h.Login)
 
 	router.GET(DestinationHikes, h.DestinationHikesList)
 	router.POST(DestinationHikes, h.AddDestinationToHike)

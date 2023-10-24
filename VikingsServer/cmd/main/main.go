@@ -52,7 +52,7 @@ func main() {
 	if errRep != nil {
 		logger.Fatalf("Error from repository: %s", err)
 	}
-	hand := handler.NewHandler(logger, rep, minioClient)
+	hand := handler.NewHandler(logger, rep, minioClient, conf)
 	application := app.NewApp(conf, router, logger, hand)
 	application.RunApp()
 }
