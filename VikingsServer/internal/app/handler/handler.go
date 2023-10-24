@@ -2,7 +2,11 @@ package handler
 
 import (
 	_ "VikingsServer/docs"
+	"VikingsServer/internal/app/config"
+	"VikingsServer/internal/app/redis"
 	"VikingsServer/internal/app/repository"
+	"VikingsServer/internal/app/role"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go"
 	"github.com/sirupsen/logrus"
@@ -12,62 +16,90 @@ import (
 )
 
 const (
-	baseURL    = "api/v3"
-	citiesHTML = "cities"
+	baseURL         = "api/v3"
+	cities          = baseURL + "/cities"
+	addCityIntoHike = baseURL + "/cities/add-city-into-hike"
+	addCityImage    = baseURL + "/cities/upload-image"
+	deleteCityReact = baseURL + "/api/v3/cities/delete/:id"
 
-	cities            = baseURL + "/cities"
-	addCityImage      = baseURL + "/cities/upload-image"
-	hikes             = baseURL + "/hikes"
-	hikesUpdateStatus = baseURL + "/hikes-update-status"
-	users             = baseURL + "/users"
-	DestinationHikes  = baseURL + "/destination-hikes"
+	hikes                        = baseURL + "/hikes"
+	hikesByID                    = baseURL + "/hikes/:id"
+	hikeUpdateStatusForModerator = baseURL + "/hikes/update/status-for-moderator"
+	hikeUpdateStatusForUser      = baseURL + "/hikes/update/status-for-user"
+
+	users            = baseURL + "/users"
+	login            = users + "/login"
+	signup           = users + "/sign_up"
+	logout           = users + "/logout"
+	destinationHikes = baseURL + "/destination-hikes"
 )
 
 type Handler struct {
 	Logger     *logrus.Logger
 	Repository *repository.Repository
 	Minio      *minio.Client
+	Config     *config.Config
+	Redis      *redis.Client
 }
 
-func NewHandler(l *logrus.Logger, r *repository.Repository, m *minio.Client) *Handler {
+func NewHandler(
+	l *logrus.Logger,
+	r *repository.Repository,
+	m *minio.Client,
+	conf *config.Config,
+	red *redis.Client,
+) *Handler {
 	return &Handler{
 		Logger:     l,
 		Repository: r,
 		Minio:      m,
+		Config:     conf,
+		Redis:      red,
 	}
 }
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
-	//router.GET(citiesHTML, h.CitiesHTML)
-	//router.POST(citiesHTML, h.DeleteCityHTML)
-
-	router.GET(cities, h.CitiesList)
-	router.POST(cities, h.AddCity)
-	router.POST(addCityImage, h.AddImage)
-	router.PUT(cities, h.UpdateCity)
-	router.DELETE(cities, h.DeleteCity)
-
-	router.GET(hikes, h.HikesList)
-	//router.POST(hikes, h.AddHike)
-	router.DELETE(hikes, h.DeleteHike)
-	router.PUT(hikesUpdateStatus, h.UpdateHikeStatus)
-	router.PUT(hikes, h.UpdateHike)
-
-	router.GET(users, h.UsersList)
-
-	router.GET(DestinationHikes, h.DestinationHikesList)
-	router.POST(DestinationHikes, h.AddDestinationToHike)
-	router.PUT(DestinationHikes, h.UpdateDestinationHikeNumber)
-	router.DELETE(DestinationHikes, h.DeleteDestinationToHike)
-
+	h.UserCRUD(router)
+	h.CityCRUD(router)
+	h.HikeCRUD(router)
 	registerStatic(router)
+}
+
+func (h *Handler) CityCRUD(router *gin.Engine) {
+	router.GET(cities, h.CitiesList)
+	router.POST(cities, h.WithAuthCheck(role.Moderator, role.Admin), h.AddCity)
+	router.PUT(addCityImage, h.AddImage)
+	router.PUT(cities, h.WithAuthCheck(role.Moderator, role.Admin), h.UpdateCity)
+	router.DELETE(cities, h.WithAuthCheck(role.Moderator, role.Admin), h.DeleteCity)
+	router.POST(addCityIntoHike, h.WithAuthCheck(role.Moderator, role.Admin), h.AddCityIntoHike)
+	router.Use(cors.Default()).DELETE(deleteCityReact, h.DeleteCityWithParam)
+}
+
+func (h *Handler) HikeCRUD(router *gin.Engine) {
+	router.GET(hikes, h.WithAuthCheck(role.Buyer, role.Moderator, role.Admin), h.HikesList)
+	router.GET(hikesByID, h.HikesListByID)
+	router.DELETE(hikes, h.WithAuthCheck(role.Buyer, role.Moderator, role.Admin), h.DeleteHike)
+	router.PUT(hikeUpdateStatusForModerator, h.WithAuthCheck(role.Moderator, role.Admin), h.UpdateStatusForModerator)
+	router.PUT(hikeUpdateStatusForUser, h.WithAuthCheck(role.Buyer, role.Moderator, role.Admin), h.UpdateStatusForUser)
+	router.PUT(hikes, h.WithAuthCheck(role.Buyer, role.Moderator, role.Admin), h.UpdateHike)
+}
+
+func (h *Handler) UserCRUD(router *gin.Engine) {
+	router.POST(login, h.Login)
+	router.POST(signup, h.Register)
+	router.GET(logout, h.Logout)
+}
+
+func (h *Handler) DestinationHikesCRUD(router *gin.Engine) {
+	router.GET(destinationHikes, h.DestinationHikesList)
+	router.POST(destinationHikes, h.AddDestinationToHike)
+	router.PUT(destinationHikes, h.UpdateDestinationHikeNumber)
+	router.DELETE(destinationHikes, h.DeleteDestinationToHike)
 }
 
 func registerStatic(router *gin.Engine) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	router.LoadHTMLGlob("static/html/*")
 	router.Static("/static", "./static")
-	router.Static("/css", "./static")
 	router.Static("/img", "./static")
 }
 
@@ -79,11 +111,17 @@ func registerFrontHeaders(ctx *gin.Context) {
 
 // MARK: - Error handler
 
+type errorResp struct {
+	Status      string `json:"status" example:"error"`
+	Description string `json:"description" example:"Описание ошибки"`
+}
+
 func (h *Handler) errorHandler(ctx *gin.Context, errorStatusCode int, err error) {
 	h.Logger.Error(err.Error())
-	ctx.JSON(errorStatusCode, gin.H{
-		"status":      "error",
-		"description": err.Error(),
+
+	ctx.JSON(errorStatusCode, errorResp{
+		Status:      "error",
+		Description: err.Error(),
 	})
 }
 

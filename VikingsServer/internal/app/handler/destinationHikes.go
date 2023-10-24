@@ -16,6 +16,17 @@ func (h *Handler) DestinationHikesList(ctx *gin.Context) {
 	h.successHandler(ctx, "destination_hikes", destinationHikes)
 }
 
+// UpdateDestinationHikeNumber godoc
+// @Summary Обновление порядка локаций похода
+// @Description Обновление порядкого номера города в истории похода
+// @Tags Пункты походов
+// @Accept json
+// @Produce json
+// @Param request body ds.UpdateDestinationHikeNumberReq true "Данные для добавления города в поход"
+// @Success 200 {object} ds.UpdateDestinationHikeNumberRes "Updated Destination Hike ID"
+// @Failure 400 {object} errorResp "Плохой запрос"
+// @Failure 500 {object} errorResp "Внутренняя ошибку"
+// @Router /api/v3/destination-hikes [put]
 func (h *Handler) UpdateDestinationHikeNumber(ctx *gin.Context) {
 	var body struct {
 		DestinationHikeID int `json:"id"`
@@ -38,6 +49,17 @@ func (h *Handler) UpdateDestinationHikeNumber(ctx *gin.Context) {
 	h.successHandler(ctx, "id", dh.ID)
 }
 
+// DeleteDestinationToHike godoc
+// @Summary Удаление локации из похода
+// @Description Удаление локации из истории похода по идентификатору
+// @Tags Пункты походов
+// @Accept json
+// @Produce json
+// @Param request body ds.DeleteDestinationToHikeReq true "Идентификатор локации в походе"
+// @Success 200 {object} ds.DeleteDestinationToHikeRes "Удаленный идентификатор локации"
+// @Failure 400 {object} errorResp "Плохой запрос"
+// @Failure 500 {object} errorResp "Внутренняя ошибка сервера"
+// @Router /api/v3/destination-hikes [delete]
 func (h *Handler) DeleteDestinationToHike(ctx *gin.Context) {
 	var body struct {
 		ID int `json:"id"`
