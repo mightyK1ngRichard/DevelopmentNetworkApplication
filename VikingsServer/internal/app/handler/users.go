@@ -11,6 +11,7 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -112,6 +113,31 @@ func (h *Handler) Register(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, &registerResp{
 		Ok: true,
 	})
+}
+
+func (h *Handler) Logout(ctx *gin.Context) {
+	jwtStr := ctx.GetHeader("Authorization")
+	if !strings.HasPrefix(jwtStr, jwtPrefix) {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	jwtStr = jwtStr[len(jwtPrefix):]
+
+	_, err := jwt.ParseWithClaims(jwtStr, &ds.JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(h.Config.JWT.Token), nil
+	})
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	err = h.Redis.WriteJWTToBlacklist(ctx.Request.Context(), jwtStr, h.Config.JWT.ExpiresIn)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.Status(http.StatusOK)
 }
 
 // MARK: - Inner functions

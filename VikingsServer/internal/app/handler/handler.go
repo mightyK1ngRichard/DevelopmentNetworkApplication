@@ -3,6 +3,7 @@ package handler
 import (
 	_ "VikingsServer/docs"
 	"VikingsServer/internal/app/config"
+	"VikingsServer/internal/app/redis"
 	"VikingsServer/internal/app/repository"
 	"VikingsServer/internal/app/role"
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,7 @@ const (
 	users             = baseURL + "/users"
 	login             = users + "/login"
 	signup            = users + "/sign_up"
+	logout            = users + "/logout"
 	DestinationHikes  = baseURL + "/destination-hikes"
 )
 
@@ -31,14 +33,22 @@ type Handler struct {
 	Repository *repository.Repository
 	Minio      *minio.Client
 	Config     *config.Config
+	Redis      *redis.Client
 }
 
-func NewHandler(l *logrus.Logger, r *repository.Repository, m *minio.Client, conf *config.Config) *Handler {
+func NewHandler(
+	l *logrus.Logger,
+	r *repository.Repository,
+	m *minio.Client,
+	conf *config.Config,
+	red *redis.Client,
+) *Handler {
 	return &Handler{
 		Logger:     l,
 		Repository: r,
 		Minio:      m,
 		Config:     conf,
+		Redis:      red,
 	}
 }
 
@@ -61,6 +71,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET(users, h.UsersList)
 	router.POST(login, h.Login)
 	router.POST(signup, h.Register)
+	router.GET(logout, h.Logout)
 
 	router.GET(DestinationHikes, h.DestinationHikesList)
 	router.POST(DestinationHikes, h.AddDestinationToHike)
@@ -72,7 +83,6 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	//router.Use(h.WithAuthCheck()).GET("/ping", h.Ping)
 	// или ниженаписанное значит что доступ имеют менеджер и админ
 	router.Use(h.WithAuthCheck(role.Manager, role.Admin)).GET("/ping", h.Ping)
-
 	registerStatic(router)
 }
 
