@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
 	"github.com/golang-jwt/jwt"
-	"github.com/google/uuid"
 	"net/http"
 	"strings"
 	"time"
@@ -36,8 +35,8 @@ func (h *Handler) Login(ctx *gin.Context) {
 				IssuedAt:  time.Now().Unix(),
 				Issuer:    "bitop-admin",
 			},
-			UserUUID: uuid.New(),
-			Role:     user.Role,
+			UserID: user.ID,
+			Role:   user.Role,
 		})
 
 		if token == nil {
