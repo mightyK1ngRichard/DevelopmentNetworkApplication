@@ -130,6 +130,7 @@ func (h *Handler) successAddHandler(ctx *gin.Context, key string, data interface
 // MARK: - TODO: Delete
 
 func (h *Handler) Ping(gCtx *gin.Context) {
-	name := gCtx.Param("name")
+	//name := gCtx.Param("name")
+	name := gCtx.Request.FormValue("name")
 	gCtx.String(http.StatusOK, "Hello, %s", name)
 }

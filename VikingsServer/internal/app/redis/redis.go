@@ -3,6 +3,7 @@ package redis
 import (
 	"VikingsServer/internal/app/config"
 	"context"
+	"fmt"
 	"github.com/go-redis/redis/v8"
 	"strconv"
 )
@@ -30,9 +31,9 @@ func New(ctx context.Context, cfg config.RedisConfig) (*Client, error) {
 
 	client.client = redisClient
 
-	//if _, err := redisClient.Ping(ctx).Result(); err != nil {
-	//	return nil, fmt.Errorf("cant ping redis: %w", err)
-	//}
+	if _, err := redisClient.Ping(ctx).Result(); err != nil {
+		return nil, fmt.Errorf("cant ping redis: %w", err)
+	}
 
 	return client, nil
 }

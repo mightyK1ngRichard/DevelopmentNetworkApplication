@@ -90,12 +90,14 @@ func (h *Handler) Register(ctx *gin.Context) {
 	}
 
 	if req.Password == "" {
-		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("pass is empty"))
+		//h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("pass is empty"))
+		ctx.AbortWithError(http.StatusBadRequest, fmt.Errorf("pass is empty"))
 		return
 	}
 
 	if req.Login == "" {
-		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("name is empty"))
+		//h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("name is empty"))
+		ctx.AbortWithError(http.StatusBadRequest, fmt.Errorf("name is empty"))
 		return
 	}
 
@@ -106,7 +108,8 @@ func (h *Handler) Register(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		//h.errorHandler(ctx, http.StatusInternalServerError, err)
+		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
