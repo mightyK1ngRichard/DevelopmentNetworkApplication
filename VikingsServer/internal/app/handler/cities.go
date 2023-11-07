@@ -63,6 +63,25 @@ func cityById(ctx *gin.Context, h *Handler, idStr string) {
 	h.successHandler(ctx, "city", city)
 }
 
+func (h *Handler) DeleteCityWithParam(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err2 := strconv.Atoi(idStr)
+	if err2 != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err2)
+		return
+	}
+	if id == 0 {
+		h.errorHandler(ctx, http.StatusBadRequest, idNotFound)
+		return
+	}
+	if err := h.Repository.DeleteCity(uint(id)); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	h.successHandler(ctx, "deleted_id", id)
+}
+
 func (h *Handler) DeleteCity(ctx *gin.Context) {
 	var request struct {
 		ID string `json:"id"`

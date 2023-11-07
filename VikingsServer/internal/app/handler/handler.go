@@ -6,6 +6,7 @@ import (
 	"VikingsServer/internal/app/redis"
 	"VikingsServer/internal/app/repository"
 	"VikingsServer/internal/app/role"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go"
 	"github.com/sirupsen/logrus"
@@ -61,9 +62,11 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.POST(addCityImage, h.AddImage)
 	router.PUT(cities, h.UpdateCity)
 	router.DELETE(cities, h.DeleteCity)
+	router.Use(cors.Default()).DELETE("/api/v3/cities/delete/:id", h.DeleteCityWithParam)
 
 	router.GET(hikes, h.HikesList)
 	//router.POST(hikes, h.AddHike)
+	//router.DELETE(hikes, h.DeleteHike)
 	router.DELETE(hikes, h.DeleteHike)
 	router.PUT(hikesUpdateStatus, h.UpdateHikeStatus)
 	router.PUT(hikes, h.UpdateHike)
@@ -81,8 +84,8 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	// TODO: Delete this endpoint
 	// никто не имеет доступа
 	//router.Use(h.WithAuthCheck()).GET("/ping", h.Ping)
-	// или ниженаписанное значит что доступ имеют менеджер и админ
 	router.Use(h.WithAuthCheck(role.Manager, role.Admin)).GET("/ping", h.Ping)
+
 	registerStatic(router)
 }
 
@@ -127,10 +130,14 @@ func (h *Handler) successAddHandler(ctx *gin.Context, key string, data interface
 	})
 }
 
-// MARK: - TODO: Delete
-
+// Ping godoc
+// @Summary      Show hello text
+// @Description  very friendly response
+// @Tags         Tests
+// @Produce      json
+// @Success      200  {object}  pingResp
+// @Router       /ping [get]
 func (h *Handler) Ping(gCtx *gin.Context) {
-	//name := gCtx.Param("name")
 	name := gCtx.Request.FormValue("name")
 	gCtx.String(http.StatusOK, "Hello, %s", name)
 }

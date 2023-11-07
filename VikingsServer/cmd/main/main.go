@@ -14,6 +14,28 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// @title VIKINGS
+// @version 1.0
+// @description Viking's hikes
+
+// @contact.name API Support
+// @contact.url https://github.com/mightyK1ngRichard
+// @contact.email dimapermyakov55@gmai.com
+
+// @license.name AS IS (NO WARRANTY)
+
+// @host 127.0.0.1
+// @schemes http
+// @BasePath /api/v3
+
+// ShowAccount godoc
+// @Summary      Cities
+// @Description  Get cities list
+// @Tags         cities
+// @Produce      json
+// @Success      200  {object}  cities
+// @Failure 	 500  {object}  errorResponse
+// @Router       /cities [get]
 func main() {
 	logger := logrus.New()
 	minioClient := kingMinio.NewMinioClient(logger)
