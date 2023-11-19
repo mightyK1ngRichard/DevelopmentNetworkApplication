@@ -112,7 +112,7 @@ func (h *Handler) UpdateStatusForUser(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.Repository.UpdateHikeForModerator(HikeID, body.StatusID); err != nil {
+	if err := h.Repository.UpdateStatusForUser(HikeID, body.StatusID); err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}

@@ -194,7 +194,6 @@ func (h *Handler) AddCity(ctx *gin.Context) {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
-
 	cityName := ctx.Request.FormValue("city_name")
 	statusID := ctx.Request.FormValue("status_id")
 	description := ctx.Request.FormValue("description")
