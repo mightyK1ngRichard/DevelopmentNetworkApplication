@@ -20,6 +20,16 @@ func GenerateUniqueName(imageName *string) error {
 	return fmt.Errorf("uncorrect file name. not fount image extension")
 }
 
+// Contains Функция для проверки наличия элемента в срезе
+func Contains(slice []string, value string) bool {
+	for _, item := range slice {
+		if item == value {
+			return true
+		}
+	}
+	return false
+}
+
 // MARK: - Поиск элемента
 
 func FindElement(slice []ds.City, target ds.City) int {

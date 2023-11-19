@@ -3,22 +3,32 @@ package handler
 import (
 	"VikingsServer/internal/app/ds"
 	"VikingsServer/internal/utils"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
 func (h *Handler) HikesList(ctx *gin.Context) {
-	hikes, err := h.Repository.HikesList()
 	if hikeIdString := ctx.Query("hike"); hikeIdString != "" {
 		hikeById(ctx, h, hikeIdString)
 		return
 	}
 
+	statusID := ctx.Query("status_id")
+	if statusID == "" {
+		statusID = "3"
+	}
+	if isOk := utils.Contains([]string{"1", "2", "3", "4"}, statusID); !isOk {
+		h.errorHandler(ctx, http.StatusBadRequest, errors.New("param `status_id` not contains into [1, 2, 3, 4]"))
+		return
+	}
+	hikes, err := h.Repository.HikesList(statusID)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusNoContent, err)
 		return
 	}
+
 	h.successHandler(ctx, "hikes", hikes)
 }
 
@@ -79,6 +89,59 @@ func (h *Handler) DeleteHike(ctx *gin.Context) {
 	}
 
 	h.successHandler(ctx, "hike_id", request.ID)
+}
+
+func (h *Handler) UpdateStatusForUser(ctx *gin.Context) {
+	var body struct {
+		StatusID uint `json:"status_id"`
+	}
+
+	if err := ctx.BindJSON(&body); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	if isOk := utils.Contains([]string{"2"}, strconv.Itoa(int(body.StatusID))); !isOk {
+		h.errorHandler(ctx, http.StatusBadRequest, errors.New("param `status_id` not contains into [2]"))
+		return
+	}
+
+	HikeID, err := h.Repository.HikeBasketId()
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, errors.New("basket is not created"))
+		return
+	}
+
+	if err := h.Repository.UpdateHikeForModerator(HikeID, body.StatusID); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.Status(http.StatusOK)
+}
+
+func (h *Handler) UpdateStatusForModerator(ctx *gin.Context) {
+	var body struct {
+		HikeID   uint `json:"hike_id"`
+		StatusID uint `json:"status_id"`
+	}
+
+	if err := ctx.BindJSON(&body); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	if isOk := utils.Contains([]string{"3", "4"}, strconv.Itoa(int(body.StatusID))); !isOk {
+		h.errorHandler(ctx, http.StatusBadRequest, errors.New("param `status_id` not contains into [3, 4]"))
+		return
+	}
+
+	if err := h.Repository.UpdateHikeForModerator(body.HikeID, body.StatusID); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.Status(http.StatusOK)
 }
 
 func (h *Handler) UpdateHikeStatus(ctx *gin.Context) {

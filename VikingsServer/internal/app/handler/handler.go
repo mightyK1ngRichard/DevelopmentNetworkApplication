@@ -3,11 +3,14 @@ package handler
 import (
 	_ "VikingsServer/docs"
 	"VikingsServer/internal/app/config"
+	"VikingsServer/internal/app/ds"
 	"VikingsServer/internal/app/redis"
 	"VikingsServer/internal/app/repository"
 	"VikingsServer/internal/app/role"
+	"errors"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 	"github.com/minio/minio-go"
 	"github.com/sirupsen/logrus"
 	swaggerFiles "github.com/swaggo/files"
@@ -16,17 +19,20 @@ import (
 )
 
 const (
-	baseURL           = "api/v3"
-	citiesHTML        = "cities"
-	cities            = baseURL + "/cities"
-	addCityImage      = baseURL + "/cities/upload-image"
-	hikes             = baseURL + "/hikes"
-	hikesUpdateStatus = baseURL + "/hikes-update-status"
-	users             = baseURL + "/users"
-	login             = users + "/login"
-	signup            = users + "/sign_up"
-	logout            = users + "/logout"
-	DestinationHikes  = baseURL + "/destination-hikes"
+	baseURL                      = "api/v3"
+	citiesHTML                   = "cities"
+	cities                       = baseURL + "/cities"
+	addCityIntoHike              = baseURL + "/cities/add-city-into-hike"
+	addCityImage                 = baseURL + "/cities/upload-image"
+	hikes                        = baseURL + "/hikes"
+	hikesUpdateStatus            = baseURL + "/hikes-update-status"
+	hikeUpdateStatusForModerator = baseURL + "/hikes/update/status-for-moderator"
+	hikeUpdateStatusForUser      = baseURL + "/hikes/update/status-for-user"
+	users                        = baseURL + "/users"
+	login                        = users + "/login"
+	signup                       = users + "/sign_up"
+	logout                       = users + "/logout"
+	destinationHikes             = baseURL + "/destination-hikes"
 )
 
 type Handler struct {
@@ -54,40 +60,48 @@ func NewHandler(
 }
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
-	//router.GET(citiesHTML, h.CitiesHTML)
-	//router.POST(citiesHTML, h.DeleteCityHTML)
+	h.CityCRUD(router)
+	h.HikeCRUD(router)
+	h.DestinationHikesCRUD(router)
+	h.UserCRUD(router)
+	registerStatic(router)
+}
 
+func (h *Handler) CityCRUD(router *gin.Engine) {
 	router.GET(cities, h.CitiesList)
 	router.POST(cities, h.AddCity)
 	router.POST(addCityImage, h.AddImage)
 	router.PUT(cities, h.UpdateCity)
 	router.DELETE(cities, h.DeleteCity)
-	//router.POST(cities, h.AddCityIntoHike)
+	router.POST(addCityIntoHike, h.AddCityIntoHike)
+	router.Use(cors.Default()).DELETE("/api/v3/cities/delete/:id", h.DeleteCityWithParam)
+}
 
-	router.GET(hikes, h.HikesList)
-	//router.POST(hikes, h.AddHike)
-	//router.DELETE(hikes, h.DeleteHike)
-	router.DELETE(hikes, h.DeleteHike)
-	router.PUT(hikesUpdateStatus, h.UpdateHikeStatus)
-	router.PUT(hikes, h.UpdateHike)
-
-	router.GET(users, h.UsersList)
+func (h *Handler) UserCRUD(router *gin.Engine) {
+	//router.GET(users, h.UsersList)
 	router.POST(login, h.Login)
 	router.POST(signup, h.Register)
 	router.GET(logout, h.Logout)
 
-	router.GET(DestinationHikes, h.DestinationHikesList)
-	router.POST(DestinationHikes, h.AddDestinationToHike)
-	router.PUT(DestinationHikes, h.UpdateDestinationHikeNumber)
-	router.DELETE(DestinationHikes, h.DeleteDestinationToHike)
-
-	// TODO: Delete this endpoint
-	// никто не имеет доступа
-	//router.Use(h.WithAuthCheck()).GET("/ping", h.Ping)
+	// TODO: Delete this endpoint from lab05
 	router.Use(h.WithAuthCheck(role.Manager, role.Admin)).GET("/ping", h.Ping)
+}
 
-	registerStatic(router)
-	router.Use(cors.Default()).DELETE("/api/v3/cities/delete/:id", h.DeleteCityWithParam)
+func (h *Handler) DestinationHikesCRUD(router *gin.Engine) {
+	router.GET(destinationHikes, h.DestinationHikesList)
+	router.POST(destinationHikes, h.AddDestinationToHike)
+	router.PUT(destinationHikes, h.UpdateDestinationHikeNumber)
+	router.DELETE(destinationHikes, h.DeleteDestinationToHike)
+}
+
+func (h *Handler) HikeCRUD(router *gin.Engine) {
+	//router.POST(hikes, h.AddHike)
+	router.GET(hikes, h.HikesList)
+	router.DELETE(hikes, h.DeleteHike)
+	//router.PUT(hikesUpdateStatus, h.UpdateHikeStatus)
+	router.PUT(hikeUpdateStatusForModerator, h.UpdateStatusForModerator)
+	router.PUT(hikeUpdateStatusForUser, h.UpdateStatusForUser)
+	router.PUT(hikes, h.UpdateHike)
 }
 
 func registerStatic(router *gin.Engine) {
@@ -138,7 +152,26 @@ func (h *Handler) successAddHandler(ctx *gin.Context, key string, data interface
 // @Produce      json
 // @Success      200  {object}  pingResp
 // @Router       /ping [get]
-func (h *Handler) Ping(gCtx *gin.Context) {
-	name := gCtx.Request.FormValue("name")
-	gCtx.String(http.StatusOK, "Hello, %s", name)
+func (h *Handler) Ping(c *gin.Context) {
+	tokenString, err := c.Cookie("access_token")
+	if err != nil {
+		h.errorHandler(c, http.StatusUnauthorized, errors.New("cookie is empty"))
+		return
+	}
+
+	token, err := jwt.ParseWithClaims(tokenString, &ds.JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(h.Config.JWT.Token), nil
+	})
+
+	if err != nil {
+		h.errorHandler(c, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	if claims, ok := token.Claims.(*ds.JWTClaims); ok && token.Valid {
+		userID := claims.UserID
+		c.JSON(http.StatusOK, gin.H{"user_id": userID})
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	}
 }

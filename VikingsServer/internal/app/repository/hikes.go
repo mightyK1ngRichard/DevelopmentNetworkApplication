@@ -3,17 +3,51 @@ package repository
 import (
 	"VikingsServer/internal/app/ds"
 	"VikingsServer/internal/utils"
+	"time"
 )
 
-func (r *Repository) HikesList() (*[]ds.Hike, error) {
+func (r *Repository) HikesList(statusID string) (*[]ds.Hike, error) {
 	var hikes []ds.Hike
-	result := r.db.Preload("Status").Preload("DestinationHikes.City.Status").Preload("User").Preload("Status").Find(&hikes)
+	result := r.db.Preload("Status").Preload("DestinationHikes.City.Status").Preload("User").Preload("Status").Where("status_id = ?", statusID).Find(&hikes)
 	return &hikes, result.Error
+}
+
+func (r *Repository) AddCityIntoHike(cityID uint, userID uint, serialNumber int) (uint, error) {
+	hikeID, err := r.HikeBasketId()
+
+	/// Корзины нет. Создадим заявку
+	if err != nil {
+		newHike := ds.Hike{
+			UserID:      userID,
+			DateCreated: time.Now(),
+			StatusID:    1,
+		}
+		if errCreate := r.db.Create(&newHike).Error; errCreate != nil {
+			return 0, errCreate
+		}
+
+		dh := ds.DestinationHikes{
+			CityID:       cityID,
+			HikeID:       newHike.ID,
+			SerialNumber: serialNumber,
+		}
+
+		return dh.ID, r.AddDestinationToHike(&dh)
+	}
+
+	/// Корзина есть, добавляем туда
+	dh := ds.DestinationHikes{
+		CityID:       cityID,
+		HikeID:       hikeID,
+		SerialNumber: serialNumber,
+	}
+
+	return dh.ID, r.AddDestinationToHike(&dh)
 }
 
 func (r *Repository) HikeBasketId() (uint, error) {
 	var hike ds.Hike
-	result := r.db.Preload("Status").Where("status_id = ?", 2).First(&hike)
+	result := r.db.Preload("Status").Where("status_id = ?", 1).First(&hike)
 	return hike.ID, result.Error
 }
 
@@ -24,8 +58,7 @@ func (r *Repository) HikeByID(id uint) (*ds.Hike, error) {
 }
 
 func (r *Repository) AddHike(hike *ds.Hike) error {
-	result := r.db.Create(&hike)
-	return result.Error
+	return r.db.Create(&hike).Error
 }
 
 func (r *Repository) DeleteHike(id uint) error {
@@ -40,6 +73,16 @@ func (r *Repository) DeleteHike(id uint) error {
 	hike.StatusID = newStatus.ID
 	result := r.db.Save(&hike)
 	return result.Error
+}
+
+func (r *Repository) UpdateHikeForModerator(hikeID uint, newStatusID uint) error {
+	updatedHike := ds.Hike{}
+	if result := r.db.First(&updatedHike, hikeID); result.Error != nil {
+		return result.Error
+	}
+	updatedHike.StatusID = newStatusID
+	updatedHike.DateApprove = time.Now()
+	return r.db.Save(&updatedHike).Error
 }
 
 func (r *Repository) UpdateHike(updatedHike *ds.Hike) error {

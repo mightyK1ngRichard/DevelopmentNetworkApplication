@@ -97,15 +97,20 @@ func (h *Handler) DeleteCityWithParam(ctx *gin.Context) {
 
 func (h *Handler) AddCityIntoHike(ctx *gin.Context) {
 	var request struct {
-		HikeID       string `json:"hike_id"`
-		CityID       string `json:"city_id"`
-		SerialNumber string `json:"city_id"`
+		CityID       uint `json:"city_id"`
+		SerialNumber int  `json:"serial_number"`
 	}
 	if err := ctx.BindJSON(&request); err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
+	dhID, err := h.Repository.AddCityIntoHike(request.CityID, 1, request.SerialNumber)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
 
+	h.successHandler(ctx, "id", dhID)
 }
 
 func (h *Handler) DeleteCity(ctx *gin.Context) {
