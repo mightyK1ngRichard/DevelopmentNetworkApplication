@@ -62,7 +62,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.POST(addCityImage, h.AddImage)
 	router.PUT(cities, h.UpdateCity)
 	router.DELETE(cities, h.DeleteCity)
-	router.Use(cors.Default()).DELETE("/api/v3/cities/delete/:id", h.DeleteCityWithParam)
+	//router.POST(cities, h.AddCityIntoHike)
 
 	router.GET(hikes, h.HikesList)
 	//router.POST(hikes, h.AddHike)
@@ -87,6 +87,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.Use(h.WithAuthCheck(role.Manager, role.Admin)).GET("/ping", h.Ping)
 
 	registerStatic(router)
+	router.Use(cors.Default()).DELETE("/api/v3/cities/delete/:id", h.DeleteCityWithParam)
 }
 
 func registerStatic(router *gin.Engine) {

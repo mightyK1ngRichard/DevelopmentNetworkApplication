@@ -32,7 +32,7 @@ func (h *Handler) CitiesList(ctx *gin.Context) {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
-
+	basketId, _ := h.Repository.HikeBasketId()
 	searchText := ctx.Query("search")
 	if searchText != "" {
 		var filteredCities []ds.City
@@ -41,11 +41,24 @@ func (h *Handler) CitiesList(ctx *gin.Context) {
 				filteredCities = append(filteredCities, city)
 			}
 		}
-		h.successHandler(ctx, "cities", filteredCities)
+
+		//h.successHandler(ctx, "cities", filteredCities)
+		registerFrontHeaders(ctx)
+		ctx.JSON(http.StatusOK, gin.H{
+			"status":    "success",
+			"cities":    filteredCities,
+			"basket_id": basketId,
+		})
 		return
 	}
 
-	h.successHandler(ctx, "cities", cities)
+	//h.successHandler(ctx, "cities", cities)
+	registerFrontHeaders(ctx)
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":    "success",
+		"cities":    cities,
+		"basket_id": basketId,
+	})
 }
 
 func cityById(ctx *gin.Context, h *Handler, idStr string) {
@@ -80,6 +93,19 @@ func (h *Handler) DeleteCityWithParam(ctx *gin.Context) {
 	}
 
 	h.successHandler(ctx, "deleted_id", id)
+}
+
+func (h *Handler) AddCityIntoHike(ctx *gin.Context) {
+	var request struct {
+		HikeID       string `json:"hike_id"`
+		CityID       string `json:"city_id"`
+		SerialNumber string `json:"city_id"`
+	}
+	if err := ctx.BindJSON(&request); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
 }
 
 func (h *Handler) DeleteCity(ctx *gin.Context) {

@@ -11,6 +11,12 @@ func (r *Repository) HikesList() (*[]ds.Hike, error) {
 	return &hikes, result.Error
 }
 
+func (r *Repository) HikeBasketId() (uint, error) {
+	var hike ds.Hike
+	result := r.db.Preload("Status").Where("status_id = ?", 2).First(&hike)
+	return hike.ID, result.Error
+}
+
 func (r *Repository) HikeByID(id uint) (*ds.Hike, error) {
 	hike := ds.Hike{}
 	result := r.db.Preload("User").Preload("DestinationHikes.Hike.Status").Preload("DestinationHikes.Hike.User").Preload("DestinationHikes.City.Status").Preload("Status").First(&hike, id)
