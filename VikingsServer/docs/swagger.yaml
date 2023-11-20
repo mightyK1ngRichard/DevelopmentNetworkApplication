@@ -1,5 +1,43 @@
 basePath: /
 definitions:
+  ds.AddCityResp:
+    properties:
+      status:
+        type: string
+    type: object
+  ds.CitiesListResp:
+    properties:
+      basket_id:
+        type: string
+      cities:
+        items:
+          $ref: '#/definitions/ds.City'
+        type: array
+      status:
+        type: string
+    type: object
+  ds.City:
+    properties:
+      city_name:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      status:
+        $ref: '#/definitions/ds.CityStatus'
+      status_id:
+        type: integer
+    type: object
+  ds.CityStatus:
+    properties:
+      id:
+        type: integer
+      status_name:
+        type: string
+    type: object
   ds.LoginSwaggerResp:
     properties:
       access_token:
@@ -35,6 +73,81 @@ info:
   title: VIKINGS
   version: "1.0"
 paths:
+  /api/v3/cities:
+    get:
+      description: Получение города(-ов) и фильтрация при поиске
+      parameters:
+      - description: Получаем определённый город
+        in: query
+        name: city
+        type: string
+      - description: Фильтрация поиска
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.CitiesListResp'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+      summary: Список городов
+      tags:
+      - Города
+    post:
+      consumes:
+      - multipart/form-data
+      description: Создание города
+      parameters:
+      - description: Название города
+        in: formData
+        name: city_name
+        required: true
+        type: string
+      - description: ID статуса города
+        in: formData
+        name: status_id
+        required: true
+        type: integer
+      - description: Описание города
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: Изображение города
+        in: formData
+        name: image_url
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/ds.AddCityResp'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+      security:
+      - ApiKeyAuth: []
+      summary: Создание города
+      tags:
+      - Города
   /api/v3/users/login:
     post:
       consumes:
@@ -129,6 +242,8 @@ paths:
       produces:
       - application/json
       responses: {}
+      security:
+      - ApiKeyAuth: []
       summary: Show hello text
       tags:
       - Tests

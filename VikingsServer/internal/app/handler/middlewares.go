@@ -45,6 +45,7 @@ func (h *Handler) WithAuthCheck(assignedRoles ...role.Role) func(ctx *gin.Contex
 
 		for _, oneOfAssignedRole := range assignedRoles {
 			if myClaims.Role == oneOfAssignedRole {
+				gCtx.Set("user_id", myClaims.UserID)
 				gCtx.Next()
 			}
 		}

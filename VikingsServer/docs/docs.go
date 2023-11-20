@@ -19,6 +19,120 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v3/cities": {
+            "get": {
+                "description": "Получение города(-ов) и фильтрация при поиске",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Города"
+                ],
+                "summary": "Список городов",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Получаем определённый город",
+                        "name": "city",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Фильтрация поиска",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ds.CitiesListResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Создание города",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Города"
+                ],
+                "summary": "Создание города",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Название города",
+                        "name": "city_name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID статуса города",
+                        "name": "status_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Описание города",
+                        "name": "description",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Изображение города",
+                        "name": "image_url",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/ds.AddCityResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v3/users/login": {
             "post": {
                 "description": "Вход нового пользователя.",
@@ -156,6 +270,11 @@ const docTemplate = `{
         },
         "/ping": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "very friendly response",
                 "produces": [
                     "application/json"
@@ -169,6 +288,65 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "ds.AddCityResp": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.CitiesListResp": {
+            "type": "object",
+            "properties": {
+                "basket_id": {
+                    "type": "string"
+                },
+                "cities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ds.City"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.City": {
+            "type": "object",
+            "properties": {
+                "city_name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/ds.CityStatus"
+                },
+                "status_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.CityStatus": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "status_name": {
+                    "type": "string"
+                }
+            }
+        },
         "ds.LoginSwaggerResp": {
             "type": "object",
             "properties": {

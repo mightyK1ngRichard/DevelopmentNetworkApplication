@@ -5,14 +5,12 @@ package handler
 import (
 	_ "VikingsServer/docs"
 	"VikingsServer/internal/app/config"
-	"VikingsServer/internal/app/ds"
 	"VikingsServer/internal/app/redis"
 	"VikingsServer/internal/app/repository"
 	"VikingsServer/internal/app/role"
 	"errors"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 	"github.com/minio/minio-go"
 	"github.com/sirupsen/logrus"
 	swaggerFiles "github.com/swaggo/files"
@@ -66,20 +64,21 @@ func NewHandler(
 func (h *Handler) RegisterHandler(router *gin.Engine) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	h.UserCRUD(router)
 	h.CityCRUD(router)
 	h.HikeCRUD(router)
-	//h.DestinationHikesCRUD(router)
-	h.UserCRUD(router)
 	registerStatic(router)
 }
 
 func (h *Handler) CityCRUD(router *gin.Engine) {
 	router.GET(cities, h.CitiesList)
-	router.POST(cities, h.AddCity)
+	router.POST(cities, h.WithAuthCheck(role.Manager, role.Admin), h.AddCity)
 	router.POST(addCityImage, h.AddImage)
 	router.PUT(cities, h.UpdateCity)
 	router.DELETE(cities, h.DeleteCity)
-	router.POST(addCityIntoHike, h.AddCityIntoHike)
+	//router.POST(addCityIntoHike, h.AddCityIntoHike)
+	router.POST(addCityIntoHike, h.WithAuthCheck(role.Manager, role.Admin), h.AddCityIntoHike)
+	router.GET("/ping", h.WithAuthCheck(role.Manager, role.Admin), h.Ping)
 }
 
 func (h *Handler) HikeCRUD(router *gin.Engine) {
@@ -98,8 +97,6 @@ func (h *Handler) UserCRUD(router *gin.Engine) {
 	router.POST(login, h.Login)
 	router.POST(signup, h.Register)
 	router.GET(logout, h.Logout)
-	// TODO: Delete this endpoint from lab05
-	router.Use(h.WithAuthCheck(role.Manager, role.Admin)).GET("/ping", h.Ping)
 }
 
 func (h *Handler) DestinationHikesCRUD(router *gin.Engine) {
@@ -139,6 +136,11 @@ func (h *Handler) errorHandler(ctx *gin.Context, errorStatusCode int, err error)
 
 // MARK: - Success handler
 
+type successResp struct {
+	Status string      `json:"status" example:"success"`
+	Data   interface{} `json:"data"`
+}
+
 func (h *Handler) successHandler(ctx *gin.Context, key string, data interface{}) {
 	registerFrontHeaders(ctx)
 	ctx.JSON(http.StatusOK, gin.H{
@@ -158,28 +160,13 @@ func (h *Handler) successAddHandler(ctx *gin.Context, key string, data interface
 // @Summary      Show hello text
 // @Description  very friendly response
 // @Tags         Tests
+// @Security ApiKeyAuth
 // @Produce      json
 // @Router       /ping [get]
 func (h *Handler) Ping(c *gin.Context) {
-	tokenString, err := c.Cookie("access_token")
-	if err != nil {
-		h.errorHandler(c, http.StatusUnauthorized, errors.New("cookie is empty"))
-		return
-	}
-
-	token, err := jwt.ParseWithClaims(tokenString, &ds.JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(h.Config.JWT.Token), nil
-	})
-
-	if err != nil {
-		h.errorHandler(c, http.StatusUnauthorized, errors.New("unauthorized"))
-		return
-	}
-
-	if claims, ok := token.Claims.(*ds.JWTClaims); ok && token.Valid {
-		userID := claims.UserID
+	if userID, exists := c.Get("user_id"); exists {
 		c.JSON(http.StatusOK, gin.H{"user_id": userID})
-	} else {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
 	}
+	h.errorHandler(c, http.StatusInternalServerError, errors.New("user_id not found"))
 }

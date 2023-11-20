@@ -16,14 +16,16 @@ import (
 // /Users/dmitriy/go/bin/swag init -g cmd/main/main.go
 
 // CitiesList godoc
-// @Summary Get a list of cities
-// @Description Get a list of cities with optional filtering by city name.
-// @Tags cities
+// @Summary Список городов
+// @Description Получение города(-ов) и фильтрация при поиске
+// @Tags Города
 // @Produce json
-// @Param city query string false "City name for filtering"
-// @Success 200 {array} ds.City
-// @Router /cities [get]
-
+// @Param city query string false "Получаем определённый город"
+// @Param search query string false "Фильтрация поиска"
+// @Success 200 {object} ds.CitiesListResp
+// @Failure 400 {object} errorResp "Неверный запрос"
+// @Failure 500 {object} errorResp "Внутренняя ошибка сервера"
+// @Router /api/v3/cities [get]
 func (h *Handler) CitiesList(ctx *gin.Context) {
 	if idStr := ctx.Query("city"); idStr != "" {
 		cityById(ctx, h, idStr)
@@ -35,6 +37,7 @@ func (h *Handler) CitiesList(ctx *gin.Context) {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
+
 	basketId, _ := h.Repository.HikeBasketId()
 	searchText := ctx.Query("search")
 	if searchText != "" {
@@ -45,7 +48,6 @@ func (h *Handler) CitiesList(ctx *gin.Context) {
 			}
 		}
 
-		//h.successHandler(ctx, "cities", filteredCities)
 		registerFrontHeaders(ctx)
 		ctx.JSON(http.StatusOK, gin.H{
 			"status":    "success",
@@ -191,15 +193,21 @@ func (h *Handler) createImageCity(
 	return newImageURL, 0, nil
 }
 
-// @Summary Create City
+// AddCity godoc
+// @Summary Создание города
 // @Security ApiKeyAuth
-// @Tags cities
-// @Description create city
-// @ID create-city
-// @Accept  json
+// @Tags Города
+// @Description Создание города
+// @Accept  multipart/form-data
 // @Produce  json
+// @Param city_name formData string true "Название города"
+// @Param status_id formData integer true "ID статуса города"
+// @Param description formData string true "Описание города"
+// @Param image_url formData file true "Изображение города"
+// @Success 201 {object} ds.AddCityResp
+// @Failure 400 {object} errorResp "Неверный запрос"
+// @Failure 500 {object} errorResp "Внутренняя ошибка сервера"
 // @Router /api/v3/cities [post]
-
 func (h *Handler) AddCity(ctx *gin.Context) {
 	file, header, err := ctx.Request.FormFile("image_url")
 	if err != nil {
