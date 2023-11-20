@@ -10,6 +10,20 @@ import (
 	"time"
 )
 
+// HikesList godoc
+// @Summary Список походов
+// @Tags Походы
+// @Description Получение списка походов с фильтрами по статусу, дате начала и дате окончания.
+// @Produce json
+// @Param hike query string false "Идентификатор конкретного похода для получения информации"
+// @Param status_id query string false "Статус похода. Возможные значения: 1, 2, 3, 4."
+// @Param start_date query string false "Дата начала периода фильтрации в формате '2006-01-02'. Если не указана, используется '0001-01-01'."
+// @Param end_date query string false "Дата окончания периода фильтрации в формате '2006-01-02'. Если не указана, используется текущая дата."
+// @Success 200 {array} ds.HikesListRes "Список походов"
+// @Success 200 {array} ds.HikesListRes2 "Список походов"
+// @Failure 400 {object} errorResp "Неверный запрос"
+// @Failure 204 {object} errorResp "Нет данных"
+// @Router /api/v3/hikes [get]
 func (h *Handler) HikesList(ctx *gin.Context) {
 	if hikeIdString := ctx.Query("hike"); hikeIdString != "" {
 		hikeById(ctx, h, hikeIdString)
@@ -64,31 +78,18 @@ func hikeById(ctx *gin.Context, h *Handler, hikeStringID string) {
 	h.successHandler(ctx, "hike", hike)
 }
 
-func (h *Handler) AddHike(ctx *gin.Context) {
-	var hike ds.Hike
-	if err := ctx.BindJSON(&hike); err != nil {
-		h.errorHandler(ctx, http.StatusBadRequest, err)
-		return
-	}
-
-	if errorCode, err := h.createHike(&hike); err != nil {
-		h.errorHandler(ctx, errorCode, err)
-		return
-	}
-
-	h.successAddHandler(ctx, "hike_id", hike.ID)
-}
-
-func (h *Handler) createHike(hike *ds.Hike) (int, error) {
-	if hike.ID != 0 {
-		return http.StatusBadRequest, idMustBeEmpty
-	}
-	if err := h.Repository.AddHike(hike); err != nil {
-		return http.StatusInternalServerError, err
-	}
-	return 0, nil
-}
-
+// DeleteHike godoc
+// @Summary Удаление похода
+// @Security ApiKeyAuth
+// @Tags Походы
+// @Description Удаление похода по идентификатору.
+// @Accept json
+// @Produce json
+// @Param request body ds.DeleteHikeReq true "Идентификатор похода для удаления"
+// @Success 200 {object} ds.DeleteHikeRes "Успешное удаление похода"
+// @Failure 400 {object} errorResp "Неверный запрос"
+// @Failure 500 {object} errorResp "Внутренняя ошибка сервера"
+// @Router /api/v3/hikes [delete]
 func (h *Handler) DeleteHike(ctx *gin.Context) {
 	var request struct {
 		ID uint `json:"id"`
@@ -109,6 +110,18 @@ func (h *Handler) DeleteHike(ctx *gin.Context) {
 	h.successHandler(ctx, "hike_id", request.ID)
 }
 
+// UpdateStatusForUser godoc
+// @Summary Обновление статуса похода для пользователя. Т.е сформировать поход
+// @Security ApiKeyAuth
+// @Tags Походы
+// @Description Обновление статуса похода для пользователя. Можно только сформировать(2)
+// @Accept json
+// @Produce json
+// @Param body body ds.UpdateStatusForUserReq true "Детали обновления статуса [2]"
+// @Success 200 {object} string "Успешное обновление статуса"
+// @Failure 400 {object} errorResp "Неверный запрос"
+// @Failure 500 {object} errorResp "Внутренняя ошибка сервера"
+// @Router /api/v3/hikes/update/status-for-user [put]
 func (h *Handler) UpdateStatusForUser(ctx *gin.Context) {
 	var body struct {
 		StatusID uint `json:"status_id"`
@@ -138,6 +151,18 @@ func (h *Handler) UpdateStatusForUser(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
+// UpdateStatusForModerator godoc
+// @Summary Обновление статуса похода для модератора
+// @Security ApiKeyAuth
+// @Tags Походы
+// @Description Обновление статуса похода для модератора. Можно только принять(3) отказать(4)
+// @Accept json
+// @Produce json
+// @Param body body ds.UpdateStatusForModeratorReq true "Детали обновления статуса [3, 4]"
+// @Success 200 {object} string "Успешное обновление статуса"
+// @Failure 400 {object} errorResp "Неверный запрос"
+// @Failure 500 {object} errorResp "Внутренняя ошибка сервера"
+// @Router /api/v3/hikes/update/status-for-moderator [put]
 func (h *Handler) UpdateStatusForModerator(ctx *gin.Context) {
 	var body struct {
 		HikeID   uint `json:"hike_id"`
@@ -162,6 +187,74 @@ func (h *Handler) UpdateStatusForModerator(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
+// UpdateHike godoc
+// @Summary Обновление данных о походе
+// @Security ApiKeyAuth
+// @Tags Походы
+// @Description Обновление данных о походе.
+// @Accept json
+// @Produce json
+// @Param updatedHike body ds.UpdateHikeReq true "Данные для обновления похода"
+// @Success 200 {object} ds.UpdatedHikeRes "Успешное обновление данных о походе"
+// @Failure 400 {object} errorResp "Неверный запрос"
+// @Failure 500 {object} errorResp "Внутренняя ошибка сервера"
+// @Router /api/v3/hikes [put]
+func (h *Handler) UpdateHike(ctx *gin.Context) {
+	var updatedHike ds.Hike
+	if err := ctx.BindJSON(&updatedHike); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+	if updatedHike.ID == 0 {
+		h.errorHandler(ctx, http.StatusBadRequest, idNotFound)
+		return
+	}
+	if err := h.Repository.UpdateHike(&updatedHike); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	h.successHandler(ctx, "updated_hike", gin.H{
+		"id":                       updatedHike.ID,
+		"hike_name":                updatedHike.HikeName,
+		"date_created":             updatedHike.DateCreated,
+		"date_end":                 updatedHike.DateEnd,
+		"date_start_of_processing": updatedHike.DateStartOfProcessing,
+		"date_approve":             updatedHike.DateApprove,
+		"date_start_hike":          updatedHike.DateStartHike,
+		"user_id":                  updatedHike.UserID,
+		"status_id":                updatedHike.StatusID,
+		"description":              updatedHike.Description,
+	})
+}
+
+// MARK: - OLD
+
+func (h *Handler) AddHike(ctx *gin.Context) {
+	var hike ds.Hike
+	if err := ctx.BindJSON(&hike); err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	if errorCode, err := h.createHike(&hike); err != nil {
+		h.errorHandler(ctx, errorCode, err)
+		return
+	}
+
+	h.successAddHandler(ctx, "hike_id", hike.ID)
+}
+
+func (h *Handler) createHike(hike *ds.Hike) (int, error) {
+	if hike.ID != 0 {
+		return http.StatusBadRequest, idMustBeEmpty
+	}
+	if err := h.Repository.AddHike(hike); err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return 0, nil
+}
+
 func (h *Handler) UpdateHikeStatus(ctx *gin.Context) {
 	var updatedHike ds.Hike
 	if err := ctx.BindJSON(&updatedHike); err != nil {
@@ -182,35 +275,6 @@ func (h *Handler) UpdateHikeStatus(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.Repository.UpdateHike(&updatedHike); err != nil {
-		h.errorHandler(ctx, http.StatusInternalServerError, err)
-		return
-	}
-
-	h.successHandler(ctx, "updated_hike", gin.H{
-		"id":                       updatedHike.ID,
-		"hike_name":                updatedHike.HikeName,
-		"date_created":             updatedHike.DateCreated,
-		"date_end":                 updatedHike.DateEnd,
-		"date_start_of_processing": updatedHike.DateStartOfProcessing,
-		"date_approve":             updatedHike.DateApprove,
-		"date_start_hike":          updatedHike.DateStartHike,
-		"user_id":                  updatedHike.UserID,
-		"status_id":                updatedHike.StatusID,
-		"description":              updatedHike.Description,
-	})
-}
-
-func (h *Handler) UpdateHike(ctx *gin.Context) {
-	var updatedHike ds.Hike
-	if err := ctx.BindJSON(&updatedHike); err != nil {
-		h.errorHandler(ctx, http.StatusBadRequest, err)
-		return
-	}
-	if updatedHike.ID == 0 {
-		h.errorHandler(ctx, http.StatusBadRequest, idNotFound)
-		return
-	}
 	if err := h.Repository.UpdateHike(&updatedHike); err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
