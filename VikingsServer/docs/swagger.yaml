@@ -1,7 +1,28 @@
 basePath: /
 definitions:
+  ds.AddCityIntoHikeReq:
+    properties:
+      city_id:
+        example: 1
+        type: integer
+      serial_number:
+        example: 1
+        type: integer
+    required:
+    - city_id
+    - serial_number
+    type: object
+  ds.AddCityIntoHikeResp:
+    properties:
+      id:
+        type: integer
+      status:
+        type: string
+    type: object
   ds.AddCityResp:
     properties:
+      city_id:
+        type: string
       status:
         type: string
     type: object
@@ -38,6 +59,16 @@ definitions:
       status_name:
         type: string
     type: object
+  ds.DeleteCityReq:
+    properties:
+      id:
+        type: string
+    type: object
+  ds.DeleteCityRes:
+    properties:
+      deleted_id:
+        type: integer
+    type: object
   ds.LoginSwaggerResp:
     properties:
       access_token:
@@ -52,6 +83,32 @@ definitions:
       login:
         type: string
       password:
+        type: string
+    type: object
+  ds.UpdateCityReq:
+    properties:
+      city_name:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      status_id:
+        type: integer
+    required:
+    - id
+    type: object
+  ds.UpdateCityResp:
+    properties:
+      city_name:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      image_url:
+        type: string
+      status_id:
         type: string
     type: object
   handler.errorResp:
@@ -74,6 +131,37 @@ info:
   version: "1.0"
 paths:
   /api/v3/cities:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление города по его идентификатору.
+      parameters:
+      - description: ID города для удаления
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.DeleteCityReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Город успешно удален
+          schema:
+            $ref: '#/definitions/ds.DeleteCityRes'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+      security:
+      - ApiKeyAuth: []
+      summary: Удаление города
+      tags:
+      - Города
     get:
       description: Получение города(-ов) и фильтрация при поиске
       parameters:
@@ -146,6 +234,70 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Создание города
+      tags:
+      - Города
+    put:
+      consumes:
+      - application/json
+      description: Обновление информации о городе
+      parameters:
+      - description: Обновленная информация о городе
+        in: body
+        name: updated_city
+        required: true
+        schema:
+          $ref: '#/definitions/ds.UpdateCityReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.UpdateCityResp'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+      security:
+      - ApiKeyAuth: []
+      summary: Обновление информации о городе
+      tags:
+      - Города
+  /api/v3/cities/add-city-into-hike:
+    post:
+      consumes:
+      - application/json
+      description: Добавление города в корзину. Если корзина не найдена, она будет
+        сформирована
+      parameters:
+      - description: Данные для добавления города в поход
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.AddCityIntoHikeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ID из destinationHikes
+          schema:
+            $ref: '#/definitions/ds.AddCityIntoHikeResp'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+      security:
+      - ApiKeyAuth: []
+      summary: Добавление города в поход
       tags:
       - Города
   /api/v3/users/login:

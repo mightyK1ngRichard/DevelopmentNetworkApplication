@@ -64,6 +64,55 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Обновление информации о городе",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Города"
+                ],
+                "summary": "Обновление информации о городе",
+                "parameters": [
+                    {
+                        "description": "Обновленная информация о городе",
+                        "name": "updated_city",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.UpdateCityReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ds.UpdateCityResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -116,6 +165,106 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/ds.AddCityResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Удаление города по его идентификатору.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Города"
+                ],
+                "summary": "Удаление города",
+                "parameters": [
+                    {
+                        "description": "ID города для удаления",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.DeleteCityReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Город успешно удален",
+                        "schema": {
+                            "$ref": "#/definitions/ds.DeleteCityRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v3/cities/add-city-into-hike": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Добавление города в корзину. Если корзина не найдена, она будет сформирована",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Города"
+                ],
+                "summary": "Добавление города в поход",
+                "parameters": [
+                    {
+                        "description": "Данные для добавления города в поход",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.AddCityIntoHikeReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ID из destinationHikes",
+                        "schema": {
+                            "$ref": "#/definitions/ds.AddCityIntoHikeResp"
                         }
                     },
                     "400": {
@@ -288,9 +437,40 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "ds.AddCityIntoHikeReq": {
+            "type": "object",
+            "required": [
+                "city_id",
+                "serial_number"
+            ],
+            "properties": {
+                "city_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "serial_number": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "ds.AddCityIntoHikeResp": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "ds.AddCityResp": {
             "type": "object",
             "properties": {
+                "city_id": {
+                    "type": "string"
+                },
                 "status": {
                     "type": "string"
                 }
@@ -347,6 +527,22 @@ const docTemplate = `{
                 }
             }
         },
+        "ds.DeleteCityReq": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.DeleteCityRes": {
+            "type": "object",
+            "properties": {
+                "deleted_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "ds.LoginSwaggerResp": {
             "type": "object",
             "properties": {
@@ -368,6 +564,46 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.UpdateCityReq": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "city_name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "status_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.UpdateCityResp": {
+            "type": "object",
+            "properties": {
+                "city_name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "status_id": {
                     "type": "string"
                 }
             }
