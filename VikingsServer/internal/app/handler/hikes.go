@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func (h *Handler) HikesList(ctx *gin.Context) {
@@ -14,8 +15,25 @@ func (h *Handler) HikesList(ctx *gin.Context) {
 		hikeById(ctx, h, hikeIdString)
 		return
 	}
-
 	statusID := ctx.Query("status_id")
+	startDateStr := ctx.Query("start_date")
+	endDateStr := ctx.Query("end_date")
+
+	if startDateStr == "" {
+		startDateStr = "0001-01-01"
+	}
+	if endDateStr == "" {
+		endDateStr = time.Now().Format("2006-01-02")
+	}
+
+	startDate, errStart := utils.ParseDateString(startDateStr)
+	endDate, errEnd := utils.ParseDateString(endDateStr)
+	h.Logger.Info(startDate, endDate)
+	if errEnd != nil || errStart != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, errors.New("incorrect `start_date` or `end_date`"))
+		return
+	}
+
 	if statusID == "" {
 		statusID = "3"
 	}
@@ -23,7 +41,7 @@ func (h *Handler) HikesList(ctx *gin.Context) {
 		h.errorHandler(ctx, http.StatusBadRequest, errors.New("param `status_id` not contains into [1, 2, 3, 4]"))
 		return
 	}
-	hikes, err := h.Repository.HikesList(statusID)
+	hikes, err := h.Repository.HikesList(statusID, startDate, endDate)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusNoContent, err)
 		return

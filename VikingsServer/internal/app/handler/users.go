@@ -1,5 +1,4 @@
 //go:build !appengine && !appenginevm
-// +build !appengine,!appenginevm
 
 package handler
 
@@ -17,6 +16,64 @@ import (
 	"time"
 )
 
+// Register godoc
+// @Summary Регистрация пользователя
+// @Description Регистрация нового пользователя.
+// @Tags Пользователи
+// @Accept json
+// @Produce json
+// @Param request body ds.RegisterReq true "Детали регистрации"
+// @Router /api/v3/users/sign_up [post]
+func (h *Handler) Register(ctx *gin.Context) {
+	req := &ds.RegisterReq{}
+
+	err := json.NewDecoder(ctx.Request.Body).Decode(req)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	if req.Password == "" {
+		//h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("pass is empty"))
+		ctx.AbortWithError(http.StatusBadRequest, fmt.Errorf("pass is empty"))
+		return
+	}
+
+	if req.Login == "" {
+		//h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("name is empty"))
+		ctx.AbortWithError(http.StatusBadRequest, fmt.Errorf("name is empty"))
+		return
+	}
+
+	err = h.Repository.Register(&ds.User{
+		Role:     role.Buyer,
+		Login:    req.Login,
+		Password: generateHashString(req.Password),
+	})
+
+	if err != nil {
+		//h.errorHandler(ctx, http.StatusInternalServerError, err)
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, &ds.RegisterResp{
+		Ok: true,
+	})
+}
+
+// Login godoc
+// @Summary Аутентификация пользователя
+// @Description Вход нового пользователя.
+// @Tags Пользователи
+// @Accept json
+// @Produce json
+// @Param request body ds.RegisterReq true "Детали входа"
+// @Success 200 {object} ds.LoginSwaggerResp "Успешная аутентификация"
+// @Failure 400 {object} errorResp "Неверный запрос"
+// @Failure 401 {object} errorResp "Неверные учетные данные"
+// @Failure 500 {object} errorResp "Внутренняя ошибка сервера"
+// @Router /api/v3/users/login [post]
 func (h *Handler) Login(ctx *gin.Context) {
 	cfg := h.Config
 	req := &ds.LoginReq{}
@@ -73,66 +130,19 @@ func (h *Handler) UsersList(ctx *gin.Context) {
 	h.successHandler(ctx, "users", users)
 }
 
-// Register godoc
-// @Summary Register a new user
-// @Tags		Register
-// @Description Register a new user
-// @ID registerUser
+// Logout godoc
+// @Summary Выход пользователя
+// @Description Завершение сеанса текущего пользователя.
+// @Tags Пользователи
 // @Accept json
 // @Produce json
-// @Param input body registerReq true "Registration details"
-// @Success 200 {object} registerResp
-// @Failure 400 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
-// @Router api/v3/users/sign_up [post]
-
-func (h *Handler) Register(ctx *gin.Context) {
-	type registerReq struct {
-		Login    string `json:"login"`
-		Password string `json:"password"`
-	}
-
-	type registerResp struct {
-		Ok bool `json:"ok"`
-	}
-
-	req := &registerReq{}
-
-	err := json.NewDecoder(ctx.Request.Body).Decode(req)
-	if err != nil {
-		h.errorHandler(ctx, http.StatusBadRequest, err)
-		return
-	}
-
-	if req.Password == "" {
-		//h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("pass is empty"))
-		ctx.AbortWithError(http.StatusBadRequest, fmt.Errorf("pass is empty"))
-		return
-	}
-
-	if req.Login == "" {
-		//h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("name is empty"))
-		ctx.AbortWithError(http.StatusBadRequest, fmt.Errorf("name is empty"))
-		return
-	}
-
-	err = h.Repository.Register(&ds.User{
-		Role:     role.Buyer,
-		Login:    req.Login,
-		Password: generateHashString(req.Password),
-	})
-
-	if err != nil {
-		//h.errorHandler(ctx, http.StatusInternalServerError, err)
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
-	ctx.JSON(http.StatusOK, &registerResp{
-		Ok: true,
-	})
-}
-
+// @Security ApiKeyAuth
+// @Param Authorization header string true "Bearer {token}" default("Bearer ")
+// @Success 200 {string} string "Успешный выход"
+// @Failure 400 {object} errorResp "Неверный запрос"
+// @Failure 401 {object} errorResp "Неверные учетные данные"
+// @Failure 500 {object} errorResp "Внутренняя ошибка сервера"
+// @Router /api/v3/users/logout [get]
 func (h *Handler) Logout(ctx *gin.Context) {
 	jwtStr := ctx.GetHeader("Authorization")
 	if !strings.HasPrefix(jwtStr, jwtPrefix) {

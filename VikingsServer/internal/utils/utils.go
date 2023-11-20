@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/rs/xid"
 	"strings"
+	"time"
 )
 
 // MARK: - Генератор имени для фото
@@ -18,6 +19,18 @@ func GenerateUniqueName(imageName *string) error {
 		return nil
 	}
 	return fmt.Errorf("uncorrect file name. not fount image extension")
+}
+
+func ParseDateString(dateString string) (time.Time, error) {
+	format := "2006-01-02" // Пример: "2023-11-30"
+
+	// Парсинг строки даты
+	parsedTime, err := time.Parse(format, dateString)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return parsedTime, nil
 }
 
 // Contains Функция для проверки наличия элемента в срезе

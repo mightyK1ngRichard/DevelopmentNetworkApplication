@@ -7,9 +7,16 @@ import (
 	"time"
 )
 
-func (r *Repository) HikesList(statusID string) (*[]ds.Hike, error) {
+func (r *Repository) HikesList(statusID string, startDate time.Time, endDate time.Time) (*[]ds.Hike, error) {
 	var hikes []ds.Hike
-	result := r.db.Preload("Status").Preload("DestinationHikes.City.Status").Preload("DestinationHikes.Hike.Status").Preload("User").Preload("Status").Where("status_id = ?", statusID).Find(&hikes)
+	result := r.db.Preload("Status").
+		Preload("DestinationHikes.City.Status").
+		Preload("DestinationHikes.Hike.Status").
+		Preload("User").
+		Preload("Status").
+		//Where("status_id = ?", statusID).Find(&hikes)
+		Where("status_id = ? AND date_start_of_processing BETWEEN ? AND ?", statusID, startDate, endDate).
+		Find(&hikes)
 	return &hikes, result.Error
 }
 

@@ -23,10 +23,21 @@ import (
 // @contact.name API Support
 // @contact.url https://github.com/mightyK1ngRichard
 // @contact.email dimapermyakov55@gmai.com
-// @license.name AS IS (NO WARRANTY)
-// @host 127.0.0.1
+
+// @host localhost:7070
 // @schemes http
-// @BasePath /api/v3
+// @BasePath /
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+
+// ShowAccount godoc
+// @Summary      Cities
+// @Description  Get cities list
+// @Tags         cities
+// @Produce      json
+// @Router       /api/v3/cities [get]
 
 func main() {
 	logger := logrus.New()

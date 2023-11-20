@@ -1,3 +1,5 @@
+//go:build !appengine && !appenginevm
+
 package handler
 
 import (
@@ -21,6 +23,7 @@ import (
 // @Param city query string false "City name for filtering"
 // @Success 200 {array} ds.City
 // @Router /cities [get]
+
 func (h *Handler) CitiesList(ctx *gin.Context) {
 	if idStr := ctx.Query("city"); idStr != "" {
 		cityById(ctx, h, idStr)
@@ -187,6 +190,15 @@ func (h *Handler) createImageCity(
 	}
 	return newImageURL, 0, nil
 }
+
+// @Summary Create City
+// @Security ApiKeyAuth
+// @Tags cities
+// @Description create city
+// @ID create-city
+// @Accept  json
+// @Produce  json
+// @Router /api/v3/cities [post]
 
 func (h *Handler) AddCity(ctx *gin.Context) {
 	file, header, err := ctx.Request.FormFile("image_url")

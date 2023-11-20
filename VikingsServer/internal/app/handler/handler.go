@@ -1,5 +1,4 @@
 //go:build !appengine && !appenginevm
-// +build !appengine,!appenginevm
 
 package handler
 
@@ -125,6 +124,10 @@ func registerFrontHeaders(ctx *gin.Context) {
 }
 
 // MARK: - Error handler
+type errorResp struct {
+	Status      string `json:"status" example:"error"`
+	Description string `json:"description" example:"Описание ошибки"`
+}
 
 func (h *Handler) errorHandler(ctx *gin.Context, errorStatusCode int, err error) {
 	h.Logger.Error(err.Error())
@@ -156,7 +159,6 @@ func (h *Handler) successAddHandler(ctx *gin.Context, key string, data interface
 // @Description  very friendly response
 // @Tags         Tests
 // @Produce      json
-// @Success      200  {object}  pingResp
 // @Router       /ping [get]
 func (h *Handler) Ping(c *gin.Context) {
 	tokenString, err := c.Cookie("access_token")
