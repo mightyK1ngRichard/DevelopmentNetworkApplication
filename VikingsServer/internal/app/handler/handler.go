@@ -1,3 +1,6 @@
+//go:build !appengine && !appenginevm
+// +build !appengine,!appenginevm
+
 package handler
 
 import (
@@ -19,20 +22,22 @@ import (
 )
 
 const (
-	baseURL                      = "api/v3"
-	citiesHTML                   = "cities"
-	cities                       = baseURL + "/cities"
-	addCityIntoHike              = baseURL + "/cities/add-city-into-hike"
-	addCityImage                 = baseURL + "/cities/upload-image"
-	hikes                        = baseURL + "/hikes"
+	baseURL         = "api/v3"
+	citiesHTML      = "cities"
+	cities          = baseURL + "/cities"
+	addCityIntoHike = baseURL + "/cities/add-city-into-hike"
+	addCityImage    = baseURL + "/cities/upload-image"
+
 	hikesUpdateStatus            = baseURL + "/hikes-update-status"
+	hikes                        = baseURL + "/hikes"
 	hikeUpdateStatusForModerator = baseURL + "/hikes/update/status-for-moderator"
 	hikeUpdateStatusForUser      = baseURL + "/hikes/update/status-for-user"
-	users                        = baseURL + "/users"
-	login                        = users + "/login"
-	signup                       = users + "/sign_up"
-	logout                       = users + "/logout"
-	destinationHikes             = baseURL + "/destination-hikes"
+
+	users            = baseURL + "/users"
+	login            = users + "/login"
+	signup           = users + "/sign_up"
+	logout           = users + "/logout"
+	destinationHikes = baseURL + "/destination-hikes"
 )
 
 type Handler struct {
@@ -60,9 +65,11 @@ func NewHandler(
 }
 
 func (h *Handler) RegisterHandler(router *gin.Engine) {
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	h.CityCRUD(router)
 	h.HikeCRUD(router)
-	h.DestinationHikesCRUD(router)
+	//h.DestinationHikesCRUD(router)
 	h.UserCRUD(router)
 	registerStatic(router)
 }
@@ -96,16 +103,16 @@ func (h *Handler) DestinationHikesCRUD(router *gin.Engine) {
 
 func (h *Handler) HikeCRUD(router *gin.Engine) {
 	//router.POST(hikes, h.AddHike)
+	//router.PUT(hikesUpdateStatus, h.UpdateHikeStatus)
 	router.GET(hikes, h.HikesList)
 	router.DELETE(hikes, h.DeleteHike)
-	//router.PUT(hikesUpdateStatus, h.UpdateHikeStatus)
 	router.PUT(hikeUpdateStatusForModerator, h.UpdateStatusForModerator)
 	router.PUT(hikeUpdateStatusForUser, h.UpdateStatusForUser)
 	router.PUT(hikes, h.UpdateHike)
 }
 
 func registerStatic(router *gin.Engine) {
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	//router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.LoadHTMLGlob("static/html/*")
 	router.Static("/static", "./static")
 	router.Static("/css", "./static")

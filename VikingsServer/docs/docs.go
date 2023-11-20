@@ -21,75 +21,7 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {
-        "/cities": {
-            "get": {
-                "description": "Get a list of cities with optional filtering by city name.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "cities"
-                ],
-                "summary": "Get a list of cities",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "City name for filtering",
-                        "name": "city",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/ds.City"
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
-    "definitions": {
-        "ds.City": {
-            "type": "object",
-            "properties": {
-                "city_name": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "image_url": {
-                    "type": "string"
-                },
-                "status": {
-                    "$ref": "#/definitions/ds.CityStatus"
-                },
-                "status_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "ds.CityStatus": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "statusName": {
-                    "type": "string"
-                }
-            }
-        }
-    }
+    "paths": {}
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it

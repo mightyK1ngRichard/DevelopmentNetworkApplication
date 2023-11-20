@@ -1,3 +1,6 @@
+//go:build !appengine && !appenginevm
+// +build !appengine,!appenginevm
+
 package handler
 
 import (
@@ -69,6 +72,19 @@ func (h *Handler) UsersList(ctx *gin.Context) {
 
 	h.successHandler(ctx, "users", users)
 }
+
+// Register godoc
+// @Summary Register a new user
+// @Tags		Register
+// @Description Register a new user
+// @ID registerUser
+// @Accept json
+// @Produce json
+// @Param input body registerReq true "Registration details"
+// @Success 200 {object} registerResp
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router api/v3/users/sign_up [post]
 
 func (h *Handler) Register(ctx *gin.Context) {
 	type registerReq struct {
