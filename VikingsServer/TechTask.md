@@ -29,25 +29,25 @@
 
 #### гость (регистрация, аутентификация, список услуг, одна услуга):
 ```http
-POST  api/v3/users/login
-POST  api/v3/users/sign_up
-GET   api/v3/hikes?status_id={id}`
-GET   api/v3/hikes?hike={id}
+POST  http://localhost:7070/api/v3/users/login
+POST  http://localhost:7070/api/v3/users/sign_up
+GET   http://localhost:7070/api/v3/hikes?status_id={id}`
+GET   http://localhost:7070/api/v3/hikes?hike={id}
 ```
 
 #### создатель заявки (конструктор заявки, список заявок):
 ```http
-POST  api/v3/cities/add-city-into-hike
-PUT   api/v3/hikes
-PUT   api/v3/hikes/update/status-for-user
-GET   api/v3/hikes?hike={id}
+POST  http://localhost:7070/api/v3/cities/add-city-into-hike
+PUT   http://localhost:7070/api/v3/hikes
+PUT   http://localhost:7070/api/v3/hikes/update/status-for-user
+GET   http://localhost:7070/api/v3/hikes?hike={id}
 ```
 
 - модератор (список услуг таблицей, редактирование/создание услуги):
 ```http
-GET   api/v3/cities
-POST  api/v3/cities
-PUT   api/v3/cities
+GET   http://localhost:7070/api/v3/cities
+POST  http://localhost:7070/api/v3/cities
+PUT   http://localhost:7070/api/v3/cities
 ```
 
 ## Требования к аппаратному обеспечению:
