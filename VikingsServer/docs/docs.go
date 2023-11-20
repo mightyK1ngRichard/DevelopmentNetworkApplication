@@ -282,6 +282,267 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v3/hikes": {
+            "get": {
+                "description": "Получение списка походов с фильтрами по статусу, дате начала и дате окончания.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Походы"
+                ],
+                "summary": "Список походов",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Идентификатор конкретного похода для получения информации",
+                        "name": "hike",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Статус похода. Возможные значения: 1, 2, 3, 4.",
+                        "name": "status_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Дата начала периода фильтрации в формате '2006-01-02'. Если не указана, используется '0001-01-01'.",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Дата окончания периода фильтрации в формате '2006-01-02'. Если не указана, используется текущая дата.",
+                        "name": "end_date",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список походов",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ds.HikesListRes2"
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "Нет данных",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Обновление данных о походе.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Походы"
+                ],
+                "summary": "Обновление данных о походе",
+                "parameters": [
+                    {
+                        "description": "Данные для обновления похода",
+                        "name": "updatedHike",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.UpdateHikeReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешное обновление данных о походе",
+                        "schema": {
+                            "$ref": "#/definitions/ds.UpdatedHikeRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Удаление похода по идентификатору.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Походы"
+                ],
+                "summary": "Удаление похода",
+                "parameters": [
+                    {
+                        "description": "Идентификатор похода для удаления",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.DeleteHikeReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешное удаление похода",
+                        "schema": {
+                            "$ref": "#/definitions/ds.DeleteHikeRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v3/hikes/update/status-for-moderator": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Обновление статуса похода для модератора. Можно только принять(3) отказать(4)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Походы"
+                ],
+                "summary": "Обновление статуса похода для модератора",
+                "parameters": [
+                    {
+                        "description": "Детали обновления статуса [3, 4]",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.UpdateStatusForModeratorReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешное обновление статуса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v3/hikes/update/status-for-user": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Обновление статуса похода для пользователя. Можно только сформировать(2)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Походы"
+                ],
+                "summary": "Обновление статуса похода для пользователя. Т.е сформировать поход",
+                "parameters": [
+                    {
+                        "description": "Детали обновления статуса [2]",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.UpdateStatusForUserReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешное обновление статуса",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v3/users/login": {
             "post": {
                 "description": "Вход нового пользователя.",
@@ -543,6 +804,134 @@ const docTemplate = `{
                 }
             }
         },
+        "ds.DeleteHikeReq": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.DeleteHikeRes": {
+            "type": "object",
+            "properties": {
+                "hike_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.DestinationHikes": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "$ref": "#/definitions/ds.City"
+                },
+                "city_id": {
+                    "type": "integer"
+                },
+                "hike": {
+                    "$ref": "#/definitions/ds.Hike"
+                },
+                "hike_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "serial_number": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.Hike": {
+            "type": "object",
+            "properties": {
+                "date_approve": {
+                    "type": "string"
+                },
+                "date_created": {
+                    "type": "string"
+                },
+                "date_end": {
+                    "type": "string"
+                },
+                "date_start_hike": {
+                    "type": "string"
+                },
+                "date_start_of_processing": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "destination_hikes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ds.DestinationHikes"
+                    }
+                },
+                "hike_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "leader": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/ds.HikeStatus"
+                },
+                "status_id": {
+                    "type": "integer"
+                },
+                "user": {
+                    "$ref": "#/definitions/ds.User"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.HikeStatus": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "status_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.HikesListRes": {
+            "type": "object",
+            "properties": {
+                "hikes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ds.Hike"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.HikesListRes2": {
+            "type": "object",
+            "properties": {
+                "hikes": {
+                    "$ref": "#/definitions/ds.Hike"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "ds.LoginSwaggerResp": {
             "type": "object",
             "properties": {
@@ -608,6 +997,104 @@ const docTemplate = `{
                 }
             }
         },
+        "ds.UpdateHikeReq": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "hike_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.UpdateStatusForModeratorReq": {
+            "type": "object",
+            "properties": {
+                "hike_id": {
+                    "type": "integer"
+                },
+                "status_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.UpdateStatusForUserReq": {
+            "type": "object",
+            "properties": {
+                "status_id": {
+                    "type": "integer",
+                    "example": 2
+                }
+            }
+        },
+        "ds.UpdatedHikeRes": {
+            "type": "object",
+            "properties": {
+                "date_approve": {
+                    "type": "string"
+                },
+                "date_created": {
+                    "type": "string"
+                },
+                "date_end": {
+                    "type": "string"
+                },
+                "date_start_hike": {
+                    "type": "string"
+                },
+                "date_start_of_processing": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "hike_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "status_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.User": {
+            "type": "object",
+            "properties": {
+                "birthday": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "profession": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/role.Role"
+                },
+                "user_name": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.errorResp": {
             "type": "object",
             "properties": {
@@ -620,6 +1107,19 @@ const docTemplate = `{
                     "example": "error"
                 }
             }
+        },
+        "role.Role": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2
+            ],
+            "x-enum-varnames": [
+                "Buyer",
+                "Manager",
+                "Admin"
+            ]
         }
     },
     "securityDefinitions": {

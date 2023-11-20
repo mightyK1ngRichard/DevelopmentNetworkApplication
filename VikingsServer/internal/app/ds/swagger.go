@@ -1,7 +1,54 @@
 package ds
 
+type HikesListRes struct {
+	Status string `json:"status"`
+	Hikes  []Hike `json:"hikes"`
+}
+
+type HikesListRes2 struct {
+	Status string `json:"status"`
+	Hikes  Hike   `json:"hikes"`
+}
+
 type DeleteCityRes struct {
 	DeletedId int `json:"deleted_id"`
+}
+
+type UpdatedHikeRes struct {
+	ID                    uint   `json:"id"`
+	HikeName              string `json:"hike_name"`
+	DateCreated           string `json:"date_created"`
+	DateEnd               string `json:"date_end"`
+	DateStartOfProcessing string `json:"date_start_of_processing"`
+	DateApprove           string `json:"date_approve"`
+	DateStartHike         string `json:"date_start_hike"`
+	UserID                uint   `json:"user_id"`
+	StatusID              uint   `json:"status_id"`
+	Description           string `json:"description"`
+}
+
+type DeleteHikeRes struct {
+	Status string `json:"status"`
+	HikeId uint   `json:"hike_id"`
+}
+
+type DeleteHikeReq struct {
+	ID uint `json:"id"`
+}
+
+type UpdateHikeReq struct {
+	ID          uint   `json:"id"`
+	HikeName    string `json:"hike_name"`
+	Description string `json:"description"`
+}
+
+type UpdateStatusForModeratorReq struct {
+	HikeID   uint `json:"hike_id"`
+	StatusID uint `json:"status_id"`
+}
+
+type UpdateStatusForUserReq struct {
+	StatusID uint `json:"status_id" example:"2"`
 }
 
 type DeleteCityReq struct {

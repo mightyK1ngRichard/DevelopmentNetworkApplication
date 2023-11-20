@@ -85,10 +85,10 @@ func (h *Handler) HikeCRUD(router *gin.Engine) {
 	//router.POST(hikes, h.AddHike)
 	//router.PUT(hikesUpdateStatus, h.UpdateHikeStatus)
 	router.GET(hikes, h.HikesList)
-	router.DELETE(hikes, h.DeleteHike)
-	router.PUT(hikeUpdateStatusForModerator, h.UpdateStatusForModerator)
-	router.PUT(hikeUpdateStatusForUser, h.UpdateStatusForUser)
-	router.PUT(hikes, h.UpdateHike)
+	router.DELETE(hikes, h.WithAuthCheck(role.Manager, role.Admin), h.DeleteHike)
+	router.PUT(hikeUpdateStatusForModerator, h.WithAuthCheck(role.Manager, role.Admin), h.UpdateStatusForModerator)
+	router.PUT(hikeUpdateStatusForUser, h.WithAuthCheck(role.Manager, role.Admin), h.UpdateStatusForUser)
+	router.PUT(hikes, h.WithAuthCheck(role.Manager, role.Admin), h.UpdateHike)
 }
 
 func (h *Handler) UserCRUD(router *gin.Engine) {
