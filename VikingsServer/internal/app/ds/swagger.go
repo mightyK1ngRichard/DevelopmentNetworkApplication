@@ -14,6 +14,11 @@ type DeleteCityRes struct {
 	DeletedId int `json:"deleted_id"`
 }
 
+type AddImageRes struct {
+	Status   string `json:"status"`
+	ImageUrl string `json:"image_url"`
+}
+
 type UpdatedHikeRes struct {
 	ID                    uint   `json:"id"`
 	HikeName              string `json:"hike_name"`

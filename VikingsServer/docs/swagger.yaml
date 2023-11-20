@@ -26,6 +26,13 @@ definitions:
       status:
         type: string
     type: object
+  ds.AddImageRes:
+    properties:
+      image_url:
+        type: string
+      status:
+        type: string
+    type: object
   ds.CitiesListResp:
     properties:
       basket_id:
@@ -455,6 +462,42 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Добавление города в поход
+      tags:
+      - Города
+  /api/v3/cities/upload-image:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Загрузка изображения для указанного города.
+      parameters:
+      - description: Изображение в формате файла
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Идентификатор города
+        in: formData
+        name: city_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешная загрузка изображения
+          schema:
+            $ref: '#/definitions/ds.AddImageRes'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+      security:
+      - ApiKeyAuth: []
+      summary: Загрузка изображения для города
       tags:
       - Города
   /api/v3/hikes:

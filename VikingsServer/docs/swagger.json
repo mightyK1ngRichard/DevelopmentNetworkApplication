@@ -279,6 +279,62 @@
                 }
             }
         },
+        "/api/v3/cities/upload-image": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Загрузка изображения для указанного города.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Города"
+                ],
+                "summary": "Загрузка изображения для города",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Изображение в формате файла",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Идентификатор города",
+                        "name": "city_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Успешная загрузка изображения",
+                        "schema": {
+                            "$ref": "#/definitions/ds.AddImageRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v3/hikes": {
             "get": {
                 "description": "Получение списка походов с фильтрами по статусу, дате начала и дате окончания.",
@@ -727,6 +783,17 @@
             "type": "object",
             "properties": {
                 "city_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.AddImageRes": {
+            "type": "object",
+            "properties": {
+                "image_url": {
                     "type": "string"
                 },
                 "status": {

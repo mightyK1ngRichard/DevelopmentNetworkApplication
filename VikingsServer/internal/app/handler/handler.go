@@ -73,7 +73,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 func (h *Handler) CityCRUD(router *gin.Engine) {
 	router.GET(cities, h.CitiesList)
 	router.POST(cities, h.WithAuthCheck(role.Manager, role.Admin), h.AddCity)
-	router.POST(addCityImage, h.AddImage)
+	router.PUT(addCityImage, h.AddImage)
 	router.PUT(cities, h.WithAuthCheck(role.Manager, role.Admin), h.UpdateCity)
 	router.DELETE(cities, h.WithAuthCheck(role.Manager, role.Admin), h.DeleteCity)
 	//router.POST(addCityIntoHike, h.AddCityIntoHike)
