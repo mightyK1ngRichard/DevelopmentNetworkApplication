@@ -81,24 +81,6 @@ func (h *Handler) CityCRUD(router *gin.Engine) {
 	router.PUT(cities, h.UpdateCity)
 	router.DELETE(cities, h.DeleteCity)
 	router.POST(addCityIntoHike, h.AddCityIntoHike)
-	router.Use(cors.Default()).DELETE("/api/v3/cities/delete/:id", h.DeleteCityWithParam)
-}
-
-func (h *Handler) UserCRUD(router *gin.Engine) {
-	//router.GET(users, h.UsersList)
-	router.POST(login, h.Login)
-	router.POST(signup, h.Register)
-	router.GET(logout, h.Logout)
-
-	// TODO: Delete this endpoint from lab05
-	router.Use(h.WithAuthCheck(role.Manager, role.Admin)).GET("/ping", h.Ping)
-}
-
-func (h *Handler) DestinationHikesCRUD(router *gin.Engine) {
-	router.GET(destinationHikes, h.DestinationHikesList)
-	router.POST(destinationHikes, h.AddDestinationToHike)
-	router.PUT(destinationHikes, h.UpdateDestinationHikeNumber)
-	router.DELETE(destinationHikes, h.DeleteDestinationToHike)
 }
 
 func (h *Handler) HikeCRUD(router *gin.Engine) {
@@ -109,6 +91,23 @@ func (h *Handler) HikeCRUD(router *gin.Engine) {
 	router.PUT(hikeUpdateStatusForModerator, h.UpdateStatusForModerator)
 	router.PUT(hikeUpdateStatusForUser, h.UpdateStatusForUser)
 	router.PUT(hikes, h.UpdateHike)
+}
+
+func (h *Handler) UserCRUD(router *gin.Engine) {
+	//router.GET(users, h.UsersList)
+	router.Use(cors.Default()).DELETE("/api/v3/cities/delete/:id", h.DeleteCityWithParam)
+	router.POST(login, h.Login)
+	router.POST(signup, h.Register)
+	router.GET(logout, h.Logout)
+	// TODO: Delete this endpoint from lab05
+	router.Use(h.WithAuthCheck(role.Manager, role.Admin)).GET("/ping", h.Ping)
+}
+
+func (h *Handler) DestinationHikesCRUD(router *gin.Engine) {
+	router.GET(destinationHikes, h.DestinationHikesList)
+	router.POST(destinationHikes, h.AddDestinationToHike)
+	router.PUT(destinationHikes, h.UpdateDestinationHikeNumber)
+	router.DELETE(destinationHikes, h.DeleteDestinationToHike)
 }
 
 func registerStatic(router *gin.Engine) {
