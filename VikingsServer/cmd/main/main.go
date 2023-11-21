@@ -1,6 +1,4 @@
-//go:build !appengine && !appenginevm
-
-// Package main is the main package.
+// swag init -g cmd/main/main.go
 package main
 
 import (
@@ -38,7 +36,6 @@ import (
 // @Tags         cities
 // @Produce      json
 // @Router       /api/v3/cities [get]
-
 func main() {
 	logger := logrus.New()
 	minioClient := kingMinio.NewMinioClient(logger)

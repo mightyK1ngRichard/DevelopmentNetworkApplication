@@ -16,10 +16,6 @@ func (r *Repository) Register(user *ds.User) error {
 
 func (r *Repository) GetUserByLogin(login string) (*ds.User, error) {
 	user := &ds.User{}
-
-	if err := r.db.Where("login = ?", login).First(user).Error; err != nil {
-		return nil, err
-	}
-
-	return user, nil
+	res := r.db.Where("login = ?", login).First(user)
+	return user, res.Error
 }

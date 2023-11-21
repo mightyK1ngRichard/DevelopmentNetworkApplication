@@ -1,5 +1,3 @@
-//go:build !appengine && !appenginevm
-
 package handler
 
 import (
@@ -34,26 +32,21 @@ func (h *Handler) Register(ctx *gin.Context) {
 	}
 
 	if req.Password == "" {
-		//h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("pass is empty"))
-		ctx.AbortWithError(http.StatusBadRequest, fmt.Errorf("pass is empty"))
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("pass is empty"))
 		return
 	}
 
 	if req.Login == "" {
-		//h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("name is empty"))
-		ctx.AbortWithError(http.StatusBadRequest, fmt.Errorf("name is empty"))
+		h.errorHandler(ctx, http.StatusBadRequest, fmt.Errorf("name is empty"))
 		return
 	}
 
-	err = h.Repository.Register(&ds.User{
+	if err = h.Repository.Register(&ds.User{
 		Role:     role.Buyer,
 		Login:    req.Login,
 		Password: generateHashString(req.Password),
-	})
-
-	if err != nil {
-		//h.errorHandler(ctx, http.StatusInternalServerError, err)
-		ctx.AbortWithError(http.StatusInternalServerError, err)
+	}); err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -137,7 +130,6 @@ func (h *Handler) UsersList(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param Authorization header string true "Bearer {token}" default("Bearer ")
 // @Success 200 {string} string "Успешный выход"
 // @Failure 400 {object} errorResp "Неверный запрос"
 // @Failure 401 {object} errorResp "Неверные учетные данные"

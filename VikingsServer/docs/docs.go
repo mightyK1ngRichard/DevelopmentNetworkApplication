@@ -282,8 +282,159 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v3/cities/upload-image": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Загрузка изображения для указанного города.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Города"
+                ],
+                "summary": "Загрузка изображения для города",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Изображение в формате файла",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Идентификатор города",
+                        "name": "city_id",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Успешная загрузка изображения",
+                        "schema": {
+                            "$ref": "#/definitions/ds.AddImageRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v3/destination-hikes": {
+            "put": {
+                "description": "Обновление порядкого номера города в истории похода",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Пункты походов"
+                ],
+                "summary": "Обновление порядка локаций похода",
+                "parameters": [
+                    {
+                        "description": "Данные для добавления города в поход",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.UpdateDestinationHikeNumberReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated Destination Hike ID",
+                        "schema": {
+                            "$ref": "#/definitions/ds.UpdateDestinationHikeNumberRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Плохой запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибку",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаление локации из истории похода по идентификатору",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Пункты походов"
+                ],
+                "summary": "Удаление локации из похода",
+                "parameters": [
+                    {
+                        "description": "Идентификатор локации в походе",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.DeleteDestinationToHikeReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Удаленный идентификатор локации",
+                        "schema": {
+                            "$ref": "#/definitions/ds.DeleteDestinationToHikeRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Плохой запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v3/hikes": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Получение списка походов с фильтрами по статусу, дате начала и дате окончания.",
                 "produces": [
                     "application/json"
@@ -293,12 +444,6 @@ const docTemplate = `{
                 ],
                 "summary": "Список походов",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Идентификатор конкретного похода для получения информации",
-                        "name": "hike",
-                        "in": "query"
-                    },
                     {
                         "type": "string",
                         "description": "Статус похода. Возможные значения: 1, 2, 3, 4.",
@@ -348,7 +493,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Обновление данных о походе.",
+                "description": "Обновление данных о походе. Модератор и админ могут менять данные, пользователь может менять только свою",
                 "consumes": [
                     "application/json"
                 ],
@@ -543,6 +688,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v3/hikes/{id}": {
+            "get": {
+                "description": "Получение информации о походе по его ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Походы"
+                ],
+                "summary": "Получение информации о походе по его ID.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID похода",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Информация о походе по ID",
+                        "schema": {
+                            "$ref": "#/definitions/ds.HikesListRes2"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "404": {
+                        "description": "Поход не найден",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v3/users/login": {
             "post": {
                 "description": "Вход нового пользователя.",
@@ -613,16 +799,6 @@ const docTemplate = `{
                     "Пользователи"
                 ],
                 "summary": "Выход пользователя",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "\"Bearer \"",
-                        "description": "Bearer {token}",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Успешный выход",
@@ -677,24 +853,6 @@ const docTemplate = `{
                 ],
                 "responses": {}
             }
-        },
-        "/ping": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "very friendly response",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Tests"
-                ],
-                "summary": "Show hello text",
-                "responses": {}
-            }
         }
     },
     "definitions": {
@@ -730,6 +888,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "city_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.AddImageRes": {
+            "type": "object",
+            "properties": {
+                "image_url": {
                     "type": "string"
                 },
                 "status": {
@@ -801,6 +970,25 @@ const docTemplate = `{
             "properties": {
                 "deleted_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "ds.DeleteDestinationToHikeReq": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.DeleteDestinationToHikeRes": {
+            "type": "object",
+            "properties": {
+                "deleted_destination_hike": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
                 }
             }
         },
@@ -997,6 +1185,28 @@ const docTemplate = `{
                 }
             }
         },
+        "ds.UpdateDestinationHikeNumberReq": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "serial_number": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.UpdateDestinationHikeNumberRes": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "ds.UpdateHikeReq": {
             "type": "object",
             "properties": {
@@ -1117,7 +1327,7 @@ const docTemplate = `{
             ],
             "x-enum-varnames": [
                 "Buyer",
-                "Manager",
+                "Moderator",
                 "Admin"
             ]
         }

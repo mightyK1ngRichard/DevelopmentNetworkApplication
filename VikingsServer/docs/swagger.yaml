@@ -26,6 +26,13 @@ definitions:
       status:
         type: string
     type: object
+  ds.AddImageRes:
+    properties:
+      image_url:
+        type: string
+      status:
+        type: string
+    type: object
   ds.CitiesListResp:
     properties:
       basket_id:
@@ -68,6 +75,18 @@ definitions:
     properties:
       deleted_id:
         type: integer
+    type: object
+  ds.DeleteDestinationToHikeReq:
+    properties:
+      id:
+        type: integer
+    type: object
+  ds.DeleteDestinationToHikeRes:
+    properties:
+      deleted_destination_hike:
+        type: integer
+      status:
+        type: string
     type: object
   ds.DeleteHikeReq:
     properties:
@@ -194,6 +213,20 @@ definitions:
       status_id:
         type: string
     type: object
+  ds.UpdateDestinationHikeNumberReq:
+    properties:
+      id:
+        type: integer
+      serial_number:
+        type: integer
+    type: object
+  ds.UpdateDestinationHikeNumberRes:
+    properties:
+      id:
+        type: integer
+      status:
+        type: string
+    type: object
   ds.UpdateHikeReq:
     properties:
       description:
@@ -275,7 +308,7 @@ definitions:
     type: integer
     x-enum-varnames:
     - Buyer
-    - Manager
+    - Moderator
     - Admin
 host: localhost:7070
 info:
@@ -457,6 +490,101 @@ paths:
       summary: Добавление города в поход
       tags:
       - Города
+  /api/v3/cities/upload-image:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Загрузка изображения для указанного города.
+      parameters:
+      - description: Изображение в формате файла
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Идентификатор города
+        in: formData
+        name: city_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешная загрузка изображения
+          schema:
+            $ref: '#/definitions/ds.AddImageRes'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+      security:
+      - ApiKeyAuth: []
+      summary: Загрузка изображения для города
+      tags:
+      - Города
+  /api/v3/destination-hikes:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление локации из истории похода по идентификатору
+      parameters:
+      - description: Идентификатор локации в походе
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.DeleteDestinationToHikeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Удаленный идентификатор локации
+          schema:
+            $ref: '#/definitions/ds.DeleteDestinationToHikeRes'
+        "400":
+          description: Плохой запрос
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+      summary: Удаление локации из похода
+      tags:
+      - Пункты походов
+    put:
+      consumes:
+      - application/json
+      description: Обновление порядкого номера города в истории похода
+      parameters:
+      - description: Данные для добавления города в поход
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.UpdateDestinationHikeNumberReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated Destination Hike ID
+          schema:
+            $ref: '#/definitions/ds.UpdateDestinationHikeNumberRes'
+        "400":
+          description: Плохой запрос
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+        "500":
+          description: Внутренняя ошибку
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+      summary: Обновление порядка локаций похода
+      tags:
+      - Пункты походов
   /api/v3/hikes:
     delete:
       consumes:
@@ -493,10 +621,6 @@ paths:
       description: Получение списка походов с фильтрами по статусу, дате начала и
         дате окончания.
       parameters:
-      - description: Идентификатор конкретного похода для получения информации
-        in: query
-        name: hike
-        type: string
       - description: 'Статус похода. Возможные значения: 1, 2, 3, 4.'
         in: query
         name: status_id
@@ -528,13 +652,16 @@ paths:
           description: Неверный запрос
           schema:
             $ref: '#/definitions/handler.errorResp'
+      security:
+      - ApiKeyAuth: []
       summary: Список походов
       tags:
       - Походы
     put:
       consumes:
       - application/json
-      description: Обновление данных о походе.
+      description: Обновление данных о походе. Модератор и админ могут менять данные,
+        пользователь может менять только свою
       parameters:
       - description: Данные для обновления похода
         in: body
@@ -560,6 +687,33 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Обновление данных о походе
+      tags:
+      - Походы
+  /api/v3/hikes/{id}:
+    get:
+      description: Получение информации о походе по его ID.
+      parameters:
+      - description: ID похода
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о походе по ID
+          schema:
+            $ref: '#/definitions/ds.HikesListRes2'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+        "404":
+          description: Поход не найден
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+      summary: Получение информации о походе по его ID.
       tags:
       - Походы
   /api/v3/hikes/update/status-for-moderator:
@@ -666,13 +820,6 @@ paths:
       consumes:
       - application/json
       description: Завершение сеанса текущего пользователя.
-      parameters:
-      - default: '"Bearer "'
-        description: Bearer {token}
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -715,17 +862,6 @@ paths:
       summary: Регистрация пользователя
       tags:
       - Пользователи
-  /ping:
-    get:
-      description: very friendly response
-      produces:
-      - application/json
-      responses: {}
-      security:
-      - ApiKeyAuth: []
-      summary: Show hello text
-      tags:
-      - Tests
 schemes:
 - http
 securityDefinitions:

@@ -4,6 +4,6 @@ type Role int
 
 const (
 	Buyer Role = iota
-	Manager
+	Moderator
 	Admin
 )

@@ -2,8 +2,10 @@ package handler
 
 import (
 	"VikingsServer/internal/app/ds"
+	"VikingsServer/internal/app/role"
 	"VikingsServer/internal/utils"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -13,9 +15,9 @@ import (
 // HikesList godoc
 // @Summary Список походов
 // @Tags Походы
+// @Security ApiKeyAuth
 // @Description Получение списка походов с фильтрами по статусу, дате начала и дате окончания.
 // @Produce json
-// @Param hike query string false "Идентификатор конкретного похода для получения информации"
 // @Param status_id query string false "Статус похода. Возможные значения: 1, 2, 3, 4."
 // @Param start_date query string false "Дата начала периода фильтрации в формате '2006-01-02'. Если не указана, используется '0001-01-01'."
 // @Param end_date query string false "Дата окончания периода фильтрации в формате '2006-01-02'. Если не указана, используется текущая дата."
@@ -25,9 +27,18 @@ import (
 // @Failure 204 {object} errorResp "Нет данных"
 // @Router /api/v3/hikes [get]
 func (h *Handler) HikesList(ctx *gin.Context) {
-	if hikeIdString := ctx.Query("hike"); hikeIdString != "" {
-		hikeById(ctx, h, hikeIdString)
+	userID, existsUser := ctx.Get("user_id")
+	userRole, existsRole := ctx.Get("user_role")
+	if !existsUser || !existsRole {
+		h.errorHandler(ctx, http.StatusUnauthorized, errors.New("not fount `user_id` or `user_role`"))
 		return
+	}
+	switch userRole {
+	case role.Buyer:
+		h.hikeByUserId(ctx, fmt.Sprintf("%d", userID))
+		return
+	default:
+		break
 	}
 	statusID := ctx.Query("status_id")
 	startDateStr := ctx.Query("start_date")
@@ -39,7 +50,6 @@ func (h *Handler) HikesList(ctx *gin.Context) {
 	if endDateStr == "" {
 		endDateStr = time.Now().Format("2006-01-02")
 	}
-
 	startDate, errStart := utils.ParseDateString(startDateStr)
 	endDate, errEnd := utils.ParseDateString(endDateStr)
 	h.Logger.Info(startDate, endDate)
@@ -47,7 +57,6 @@ func (h *Handler) HikesList(ctx *gin.Context) {
 		h.errorHandler(ctx, http.StatusBadRequest, errors.New("incorrect `start_date` or `end_date`"))
 		return
 	}
-
 	if statusID == "" {
 		statusID = "3"
 	}
@@ -62,6 +71,34 @@ func (h *Handler) HikesList(ctx *gin.Context) {
 	}
 
 	h.successHandler(ctx, "hikes", hikes)
+}
+
+// HikesListByID godoc
+// @Summary Получение информации о походе по его ID.
+// @Tags Походы
+// @Description Получение информации о походе по его ID.
+// @Produce json
+// @Param id path string true "ID похода"
+// @Success 200 {object} ds.HikesListRes2 "Информация о походе по ID"
+// @Failure 400 {object} errorResp "Неверный запрос"
+// @Failure 404 {object} errorResp "Поход не найден"
+// @Router /api/v3/hikes/{id} [get]
+func (h *Handler) HikesListByID(ctx *gin.Context) {
+	if hikeIdString := ctx.Param("id"); hikeIdString != "" {
+		hikeById(ctx, h, hikeIdString)
+		return
+	}
+
+	h.errorHandler(ctx, http.StatusBadRequest, errors.New("param `id` not found"))
+}
+
+func (h *Handler) hikeByUserId(ctx *gin.Context, userID string) {
+	hike, errDB := h.Repository.HikeByUserID(userID)
+	if errDB != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, errDB)
+		return
+	}
+	h.successHandler(ctx, "hike", hike)
 }
 
 func hikeById(ctx *gin.Context, h *Handler, hikeStringID string) {
@@ -91,6 +128,12 @@ func hikeById(ctx *gin.Context, h *Handler, hikeStringID string) {
 // @Failure 500 {object} errorResp "Внутренняя ошибка сервера"
 // @Router /api/v3/hikes [delete]
 func (h *Handler) DeleteHike(ctx *gin.Context) {
+	userID, existsUser := ctx.Get("user_id")
+	userRole, existsRole := ctx.Get("user_role")
+	if !existsUser || !existsRole {
+		h.errorHandler(ctx, http.StatusUnauthorized, errors.New("not fount `user_id` or `user_role`"))
+		return
+	}
 	var request struct {
 		ID uint `json:"id"`
 	}
@@ -102,6 +145,19 @@ func (h *Handler) DeleteHike(ctx *gin.Context) {
 		h.errorHandler(ctx, http.StatusBadRequest, idNotFound)
 		return
 	}
+
+	hike, err := h.Repository.HikeByID(request.ID)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, fmt.Errorf("hike with `id` = %d not found", hike.ID))
+		return
+	}
+
+	/// Если это пользователь и он меняет не свою заявку, ошибка
+	if hike.UserID != userID && userRole == role.Buyer {
+		h.errorHandler(ctx, http.StatusForbidden, errors.New("you are not the creator. you can't delete a hike"))
+		return
+	}
+
 	if err := h.Repository.DeleteHike(request.ID); err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
@@ -191,7 +247,7 @@ func (h *Handler) UpdateStatusForModerator(ctx *gin.Context) {
 // @Summary Обновление данных о походе
 // @Security ApiKeyAuth
 // @Tags Походы
-// @Description Обновление данных о походе.
+// @Description Обновление данных о походе. Модератор и админ могут менять данные, пользователь может менять только свою
 // @Accept json
 // @Produce json
 // @Param updatedHike body ds.UpdateHikeReq true "Данные для обновления похода"
@@ -200,6 +256,12 @@ func (h *Handler) UpdateStatusForModerator(ctx *gin.Context) {
 // @Failure 500 {object} errorResp "Внутренняя ошибка сервера"
 // @Router /api/v3/hikes [put]
 func (h *Handler) UpdateHike(ctx *gin.Context) {
+	userID, existsUser := ctx.Get("user_id")
+	userRole, existsRole := ctx.Get("user_role")
+	if !existsUser || !existsRole {
+		h.errorHandler(ctx, http.StatusUnauthorized, errors.New("not fount `user_id` or `user_role`"))
+		return
+	}
 	var updatedHike ds.Hike
 	if err := ctx.BindJSON(&updatedHike); err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
@@ -209,6 +271,19 @@ func (h *Handler) UpdateHike(ctx *gin.Context) {
 		h.errorHandler(ctx, http.StatusBadRequest, idNotFound)
 		return
 	}
+
+	hike, err := h.Repository.HikeByID(updatedHike.ID)
+	if err != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, fmt.Errorf("hike with `id` = %d not found", hike.ID))
+		return
+	}
+
+	/// Если это пользователь и он меняет не свою заявку, ошибка
+	if hike.UserID != userID && userRole == role.Buyer {
+		h.errorHandler(ctx, http.StatusForbidden, errors.New("you cannot change the hike if it's not yours"))
+		return
+	}
+
 	if err := h.Repository.UpdateHike(&updatedHike); err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
@@ -228,7 +303,7 @@ func (h *Handler) UpdateHike(ctx *gin.Context) {
 	})
 }
 
-// MARK: - OLD
+// MARK: - OLD CODE
 
 func (h *Handler) AddHike(ctx *gin.Context) {
 	var hike ds.Hike

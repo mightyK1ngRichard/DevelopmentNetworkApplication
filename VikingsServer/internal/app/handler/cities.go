@@ -1,5 +1,3 @@
-//go:build !appengine && !appenginevm
-
 package handler
 
 import (
@@ -12,8 +10,6 @@ import (
 	"strconv"
 	"strings"
 )
-
-// /Users/dmitriy/go/bin/swag init -g cmd/main/main.go
 
 // CitiesList godoc
 // @Summary Список городов
@@ -47,7 +43,6 @@ func (h *Handler) CitiesList(ctx *gin.Context) {
 				filteredCities = append(filteredCities, city)
 			}
 		}
-
 		registerFrontHeaders(ctx)
 		ctx.JSON(http.StatusOK, gin.H{
 			"status":    "success",
@@ -57,7 +52,6 @@ func (h *Handler) CitiesList(ctx *gin.Context) {
 		return
 	}
 
-	//h.successHandler(ctx, "cities", cities)
 	registerFrontHeaders(ctx)
 	ctx.JSON(http.StatusOK, gin.H{
 		"status":    "success",
@@ -178,6 +172,19 @@ func (h *Handler) DeleteCity(ctx *gin.Context) {
 	h.successHandler(ctx, "deleted_id", id)
 }
 
+// AddImage godoc
+// @Summary Загрузка изображения для города
+// @Security ApiKeyAuth
+// @Tags Города
+// @Description Загрузка изображения для указанного города.
+// @Accept multipart/form-data
+// @Produce json
+// @Param file formData file true "Изображение в формате файла"
+// @Param city_id formData string true "Идентификатор города"
+// @Success 201 {object} ds.AddImageRes "Успешная загрузка изображения"
+// @Failure 400 {object} errorResp "Неверный запрос"
+// @Failure 500 {object} errorResp "Внутренняя ошибка сервера"
+// @Router /api/v3/cities/upload-image [put]
 func (h *Handler) AddImage(ctx *gin.Context) {
 	file, header, err := ctx.Request.FormFile("file")
 	cityID := ctx.Request.FormValue("city_id")
