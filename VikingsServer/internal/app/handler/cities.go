@@ -102,7 +102,6 @@ func (h *Handler) DeleteCityWithParam(ctx *gin.Context) {
 
 // AddCityIntoHike godoc
 // @Summary Добавление города в поход
-// @Security ApiKeyAuth
 // @Tags Города
 // @Description Добавление города в корзину. Если корзина не найдена, она будет сформирована
 // @Accept json
@@ -144,7 +143,6 @@ func (h *Handler) AddCityIntoHike(ctx *gin.Context) {
 // DeleteCity godoc
 // @Summary Удаление города
 // @Description Удаление города по его идентификатору.
-// @Security ApiKeyAuth
 // @Tags Города
 // @Accept json
 // @Produce json
@@ -180,7 +178,6 @@ func (h *Handler) DeleteCity(ctx *gin.Context) {
 
 // AddImage godoc
 // @Summary Загрузка изображения для города
-// @Security ApiKeyAuth
 // @Tags Города
 // @Description Загрузка изображения для указанного города.
 // @Accept multipart/form-data
@@ -243,7 +240,6 @@ func (h *Handler) createImageCity(
 
 // AddCity godoc
 // @Summary Создание города
-// @Security ApiKeyAuth
 // @Tags Города
 // @Description Создание города
 // @Accept  multipart/form-data
@@ -305,7 +301,6 @@ func (h *Handler) createCity(city *ds.City) (int, error) {
 
 // UpdateCity godoc
 // @Summary Обновление информации о городе
-// @Security ApiKeyAuth
 // @Tags Города
 // @Description Обновление информации о городе
 // @Accept json

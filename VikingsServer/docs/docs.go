@@ -65,11 +65,6 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Обновление информации о городе",
                 "consumes": [
                     "application/json"
@@ -114,11 +109,6 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Создание города",
                 "consumes": [
                     "multipart/form-data"
@@ -182,11 +172,6 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Удаление города по его идентификатору.",
                 "consumes": [
                     "application/json"
@@ -233,11 +218,6 @@ const docTemplate = `{
         },
         "/api/v3/cities/add-city-into-hike": {
             "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Добавление города в корзину. Если корзина не найдена, она будет сформирована",
                 "consumes": [
                     "application/json"
@@ -284,11 +264,6 @@ const docTemplate = `{
         },
         "/api/v3/cities/upload-image": {
             "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Загрузка изображения для указанного города.",
                 "consumes": [
                     "multipart/form-data"
@@ -399,11 +374,6 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Обновление данных о походе.",
                 "consumes": [
                     "application/json"
@@ -499,11 +469,6 @@ const docTemplate = `{
         },
         "/api/v3/hikes/update/status-for-moderator": {
             "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Обновление статуса похода для модератора. Можно только принять(3) отказать(4)",
                 "consumes": [
                     "application/json"
@@ -550,11 +515,6 @@ const docTemplate = `{
         },
         "/api/v3/hikes/update/status-for-user": {
             "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "Обновление статуса похода для пользователя. Можно только сформировать(2)",
                 "consumes": [
                     "application/json"
@@ -597,159 +557,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/api/v3/users/login": {
-            "post": {
-                "description": "Вход нового пользователя.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Пользователи"
-                ],
-                "summary": "Аутентификация пользователя",
-                "parameters": [
-                    {
-                        "description": "Детали входа",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/ds.RegisterReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Успешная аутентификация",
-                        "schema": {
-                            "$ref": "#/definitions/ds.LoginSwaggerResp"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/handler.errorResp"
-                        }
-                    },
-                    "401": {
-                        "description": "Неверные учетные данные",
-                        "schema": {
-                            "$ref": "#/definitions/handler.errorResp"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handler.errorResp"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v3/users/logout": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Завершение сеанса текущего пользователя.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Пользователи"
-                ],
-                "summary": "Выход пользователя",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "default": "\"Bearer \"",
-                        "description": "Bearer {token}",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Успешный выход",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/handler.errorResp"
-                        }
-                    },
-                    "401": {
-                        "description": "Неверные учетные данные",
-                        "schema": {
-                            "$ref": "#/definitions/handler.errorResp"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/handler.errorResp"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v3/users/sign_up": {
-            "post": {
-                "description": "Регистрация нового пользователя.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Пользователи"
-                ],
-                "summary": "Регистрация пользователя",
-                "parameters": [
-                    {
-                        "description": "Детали регистрации",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/ds.RegisterReq"
-                        }
-                    }
-                ],
-                "responses": {}
-            }
-        },
-        "/ping": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "very friendly response",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Tests"
-                ],
-                "summary": "Show hello text",
-                "responses": {}
             }
         }
     },
@@ -995,31 +802,6 @@ const docTemplate = `{
                     "$ref": "#/definitions/ds.Hike"
                 },
                 "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "ds.LoginSwaggerResp": {
-            "type": "object",
-            "properties": {
-                "access_token": {
-                    "type": "string"
-                },
-                "expires_in": {
-                    "type": "string"
-                },
-                "token_type": {
-                    "type": "string"
-                }
-            }
-        },
-        "ds.RegisterReq": {
-            "type": "object",
-            "properties": {
-                "login": {
-                    "type": "string"
-                },
-                "password": {
                     "type": "string"
                 }
             }

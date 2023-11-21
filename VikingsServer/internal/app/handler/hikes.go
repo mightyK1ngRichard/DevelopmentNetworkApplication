@@ -112,7 +112,6 @@ func (h *Handler) DeleteHike(ctx *gin.Context) {
 
 // UpdateStatusForUser godoc
 // @Summary Обновление статуса похода для пользователя. Т.е сформировать поход
-// @Security ApiKeyAuth
 // @Tags Походы
 // @Description Обновление статуса похода для пользователя. Можно только сформировать(2)
 // @Accept json
@@ -153,7 +152,6 @@ func (h *Handler) UpdateStatusForUser(ctx *gin.Context) {
 
 // UpdateStatusForModerator godoc
 // @Summary Обновление статуса похода для модератора
-// @Security ApiKeyAuth
 // @Tags Походы
 // @Description Обновление статуса похода для модератора. Можно только принять(3) отказать(4)
 // @Accept json
@@ -189,7 +187,6 @@ func (h *Handler) UpdateStatusForModerator(ctx *gin.Context) {
 
 // UpdateHike godoc
 // @Summary Обновление данных о походе
-// @Security ApiKeyAuth
 // @Tags Походы
 // @Description Обновление данных о походе.
 // @Accept json

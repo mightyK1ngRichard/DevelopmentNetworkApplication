@@ -159,22 +159,6 @@ definitions:
       status:
         type: string
     type: object
-  ds.LoginSwaggerResp:
-    properties:
-      access_token:
-        type: string
-      expires_in:
-        type: string
-      token_type:
-        type: string
-    type: object
-  ds.RegisterReq:
-    properties:
-      login:
-        type: string
-      password:
-        type: string
-    type: object
   ds.UpdateCityReq:
     properties:
       city_name:
@@ -321,8 +305,6 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/handler.errorResp'
-      security:
-      - ApiKeyAuth: []
       summary: Удаление города
       tags:
       - Города
@@ -395,8 +377,6 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/handler.errorResp'
-      security:
-      - ApiKeyAuth: []
       summary: Создание города
       tags:
       - Города
@@ -426,8 +406,6 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/handler.errorResp'
-      security:
-      - ApiKeyAuth: []
       summary: Обновление информации о городе
       tags:
       - Города
@@ -459,8 +437,6 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/handler.errorResp'
-      security:
-      - ApiKeyAuth: []
       summary: Добавление города в поход
       tags:
       - Города
@@ -495,8 +471,6 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/handler.errorResp'
-      security:
-      - ApiKeyAuth: []
       summary: Загрузка изображения для города
       tags:
       - Города
@@ -600,8 +574,6 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/handler.errorResp'
-      security:
-      - ApiKeyAuth: []
       summary: Обновление данных о походе
       tags:
       - Походы
@@ -633,8 +605,6 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/handler.errorResp'
-      security:
-      - ApiKeyAuth: []
       summary: Обновление статуса похода для модератора
       tags:
       - Походы
@@ -665,110 +635,9 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/handler.errorResp'
-      security:
-      - ApiKeyAuth: []
       summary: Обновление статуса похода для пользователя. Т.е сформировать поход
       tags:
       - Походы
-  /api/v3/users/login:
-    post:
-      consumes:
-      - application/json
-      description: Вход нового пользователя.
-      parameters:
-      - description: Детали входа
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/ds.RegisterReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Успешная аутентификация
-          schema:
-            $ref: '#/definitions/ds.LoginSwaggerResp'
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/handler.errorResp'
-        "401":
-          description: Неверные учетные данные
-          schema:
-            $ref: '#/definitions/handler.errorResp'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handler.errorResp'
-      summary: Аутентификация пользователя
-      tags:
-      - Пользователи
-  /api/v3/users/logout:
-    get:
-      consumes:
-      - application/json
-      description: Завершение сеанса текущего пользователя.
-      parameters:
-      - default: '"Bearer "'
-        description: Bearer {token}
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Успешный выход
-          schema:
-            type: string
-        "400":
-          description: Неверный запрос
-          schema:
-            $ref: '#/definitions/handler.errorResp'
-        "401":
-          description: Неверные учетные данные
-          schema:
-            $ref: '#/definitions/handler.errorResp'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/handler.errorResp'
-      security:
-      - ApiKeyAuth: []
-      summary: Выход пользователя
-      tags:
-      - Пользователи
-  /api/v3/users/sign_up:
-    post:
-      consumes:
-      - application/json
-      description: Регистрация нового пользователя.
-      parameters:
-      - description: Детали регистрации
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/ds.RegisterReq'
-      produces:
-      - application/json
-      responses: {}
-      summary: Регистрация пользователя
-      tags:
-      - Пользователи
-  /ping:
-    get:
-      description: very friendly response
-      produces:
-      - application/json
-      responses: {}
-      security:
-      - ApiKeyAuth: []
-      summary: Show hello text
-      tags:
-      - Tests
 schemes:
 - http
 securityDefinitions:
