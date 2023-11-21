@@ -313,6 +313,96 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v3/destination-hikes": {
+            "put": {
+                "description": "Обновление порядкого номера города в истории похода",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Пункты походов"
+                ],
+                "summary": "Обновление порядка локаций похода",
+                "parameters": [
+                    {
+                        "description": "Данные для добавления города в поход",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.UpdateDestinationHikeNumberReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated Destination Hike ID",
+                        "schema": {
+                            "$ref": "#/definitions/ds.UpdateDestinationHikeNumberRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Плохой запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибку",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаление локации из истории похода по идентификатору",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Пункты походов"
+                ],
+                "summary": "Удаление локации из похода",
+                "parameters": [
+                    {
+                        "description": "Идентификатор локации в походе",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ds.DeleteDestinationToHikeReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Удаленный идентификатор локации",
+                        "schema": {
+                            "$ref": "#/definitions/ds.DeleteDestinationToHikeRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Плохой запрос",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResp"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v3/hikes": {
             "get": {
                 "description": "Получение списка походов с фильтрами по статусу, дате начала и дате окончания.",
@@ -678,6 +768,25 @@ const docTemplate = `{
                 }
             }
         },
+        "ds.DeleteDestinationToHikeReq": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.DeleteDestinationToHikeRes": {
+            "type": "object",
+            "properties": {
+                "deleted_destination_hike": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "ds.DeleteHikeReq": {
             "type": "object",
             "properties": {
@@ -842,6 +951,28 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "ds.UpdateDestinationHikeNumberReq": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "serial_number": {
+                    "type": "integer"
+                }
+            }
+        },
+        "ds.UpdateDestinationHikeNumberRes": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
                     "type": "string"
                 }
             }

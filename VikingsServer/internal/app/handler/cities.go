@@ -1,5 +1,3 @@
-//go:build !appengine && !appenginevm
-
 package handler
 
 import (
@@ -12,8 +10,6 @@ import (
 	"strconv"
 	"strings"
 )
-
-// /Users/dmitriy/go/bin/swag init -g cmd/main/main.go
 
 // CitiesList godoc
 // @Summary Список городов
@@ -48,7 +44,6 @@ func (h *Handler) CitiesList(ctx *gin.Context) {
 			}
 		}
 
-		registerFrontHeaders(ctx)
 		ctx.JSON(http.StatusOK, gin.H{
 			"status":    "success",
 			"cities":    filteredCities,
@@ -57,8 +52,6 @@ func (h *Handler) CitiesList(ctx *gin.Context) {
 		return
 	}
 
-	//h.successHandler(ctx, "cities", cities)
-	registerFrontHeaders(ctx)
 	ctx.JSON(http.StatusOK, gin.H{
 		"status":    "success",
 		"cities":    cities,

@@ -14,7 +14,6 @@ func (r *Repository) HikesList(statusID string, startDate time.Time, endDate tim
 		Preload("DestinationHikes.Hike.Status").
 		Preload("User").
 		Preload("Status").
-		//Where("status_id = ?", statusID).Find(&hikes)
 		Where("status_id = ? AND date_start_of_processing BETWEEN ? AND ?", statusID, startDate, endDate).
 		Find(&hikes)
 	return &hikes, result.Error
@@ -74,11 +73,7 @@ func (r *Repository) DeleteHike(id uint) error {
 	if result := r.db.First(&hike, id); result.Error != nil {
 		return result.Error
 	}
-	var newStatus ds.HikeStatus
-	if result := r.db.Where("status_name = ?", utils.DeletedString).First(&newStatus); result.Error != nil {
-		return result.Error
-	}
-	hike.StatusID = newStatus.ID
+	hike.StatusID = 5
 	result := r.db.Save(&hike)
 	return result.Error
 }
@@ -116,7 +111,6 @@ func (r *Repository) UpdateHike(updatedHike *ds.Hike) error {
 		return errors.New(`DateCreated cannot be updated`)
 	}
 	if updatedHike.DateStartOfProcessing.String() != utils.EmptyDate {
-		//oldHike.DateStartOfProcessing = updatedHike.DateStartOfProcessing
 		return errors.New(`DateStartOfProcessing cannot be updated`)
 	}
 	if updatedHike.DateApprove.String() != utils.EmptyDate {
@@ -129,15 +123,12 @@ func (r *Repository) UpdateHike(updatedHike *ds.Hike) error {
 	if updatedHike.DateStartHike.String() != utils.EmptyDate {
 		oldHike.DateStartHike = updatedHike.DateStartHike
 	}
-	if updatedHike.UserID != utils.EmptyInt {
+	if updatedHike.UserID != 0 {
 		oldHike.UserID = updatedHike.UserID
 	}
 	if updatedHike.Description != "" {
 		oldHike.Description = updatedHike.Description
 	}
-	//if updatedHike.StatusID != utils.EmptyInt {
-	//	oldHike.StatusID = updatedHike.StatusID
-	//}
 
 	/// Меняем статус заявки на ожидания апрува модератора после редактирования
 	oldHike.StatusID = 2

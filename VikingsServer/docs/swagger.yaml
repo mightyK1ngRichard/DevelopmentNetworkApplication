@@ -76,6 +76,18 @@ definitions:
       deleted_id:
         type: integer
     type: object
+  ds.DeleteDestinationToHikeReq:
+    properties:
+      id:
+        type: integer
+    type: object
+  ds.DeleteDestinationToHikeRes:
+    properties:
+      deleted_destination_hike:
+        type: integer
+      status:
+        type: string
+    type: object
   ds.DeleteHikeReq:
     properties:
       id:
@@ -183,6 +195,20 @@ definitions:
       image_url:
         type: string
       status_id:
+        type: string
+    type: object
+  ds.UpdateDestinationHikeNumberReq:
+    properties:
+      id:
+        type: integer
+      serial_number:
+        type: integer
+    type: object
+  ds.UpdateDestinationHikeNumberRes:
+    properties:
+      id:
+        type: integer
+      status:
         type: string
     type: object
   ds.UpdateHikeReq:
@@ -474,6 +500,65 @@ paths:
       summary: Загрузка изображения для города
       tags:
       - Города
+  /api/v3/destination-hikes:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление локации из истории похода по идентификатору
+      parameters:
+      - description: Идентификатор локации в походе
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.DeleteDestinationToHikeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Удаленный идентификатор локации
+          schema:
+            $ref: '#/definitions/ds.DeleteDestinationToHikeRes'
+        "400":
+          description: Плохой запрос
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+      summary: Удаление локации из похода
+      tags:
+      - Пункты походов
+    put:
+      consumes:
+      - application/json
+      description: Обновление порядкого номера города в истории похода
+      parameters:
+      - description: Данные для добавления города в поход
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ds.UpdateDestinationHikeNumberReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated Destination Hike ID
+          schema:
+            $ref: '#/definitions/ds.UpdateDestinationHikeNumberRes'
+        "400":
+          description: Плохой запрос
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+        "500":
+          description: Внутренняя ошибку
+          schema:
+            $ref: '#/definitions/handler.errorResp'
+      summary: Обновление порядка локаций похода
+      tags:
+      - Пункты походов
   /api/v3/hikes:
     delete:
       consumes:

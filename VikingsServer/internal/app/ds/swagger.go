@@ -10,6 +10,25 @@ type HikesListRes2 struct {
 	Hikes  Hike   `json:"hikes"`
 }
 
+type DeleteDestinationToHikeReq struct {
+	ID int `json:"id"`
+}
+
+type DeleteDestinationToHikeRes struct {
+	Status                 string `json:"status"`
+	DeletedDestinationHike int    `json:"deleted_destination_hike"`
+}
+
+type UpdateDestinationHikeNumberReq struct {
+	DestinationHikeID int `json:"id"`
+	SerialNumber      int `json:"serial_number"`
+}
+
+type UpdateDestinationHikeNumberRes struct {
+	Status string `json:"status"`
+	ID     uint   `json:"id"`
+}
+
 type DeleteCityRes struct {
 	DeletedId int `json:"deleted_id"`
 }
