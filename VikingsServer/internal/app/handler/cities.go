@@ -112,17 +112,6 @@ func (h *Handler) DeleteCityWithParam(ctx *gin.Context) {
 // @Failure 500 {object} errorResp "Внутренняя ошибка сервера"
 // @Router /api/v3/cities/add-city-into-hike [post]
 func (h *Handler) AddCityIntoHike(ctx *gin.Context) {
-	userID, exists := ctx.Get("user_id")
-	if !exists {
-		h.errorHandler(ctx, http.StatusUnauthorized, errors.New("user_id not found"))
-		return
-	}
-	//userID = 1 // TODO: Это хакдкод лабы 3
-	userIDUint, ok := userID.(uint)
-	if !ok {
-		h.errorHandler(ctx, http.StatusUnauthorized, errors.New("`user_id` must be uint number"))
-		return
-	}
 	var request struct {
 		CityID       uint `json:"city_id"`
 		SerialNumber int  `json:"serial_number"`
@@ -131,7 +120,7 @@ func (h *Handler) AddCityIntoHike(ctx *gin.Context) {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
-	dhID, err := h.Repository.AddCityIntoHike(request.CityID, userIDUint, request.SerialNumber)
+	dhID, err := h.Repository.AddCityIntoHike(request.CityID, 1, request.SerialNumber)
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
