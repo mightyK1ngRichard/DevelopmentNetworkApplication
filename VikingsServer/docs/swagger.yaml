@@ -373,11 +373,6 @@ paths:
         name: city_name
         required: true
         type: string
-      - description: ID статуса города
-        in: formData
-        name: status_id
-        required: true
-        type: integer
       - description: Описание города
         in: formData
         name: description

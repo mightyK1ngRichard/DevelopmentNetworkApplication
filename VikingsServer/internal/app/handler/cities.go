@@ -227,7 +227,6 @@ func (h *Handler) createImageCity(
 // @Accept  multipart/form-data
 // @Produce  json
 // @Param city_name formData string true "Название города"
-// @Param status_id formData integer true "ID статуса города"
 // @Param description formData string true "Описание города"
 // @Param image_url formData file true "Изображение города"
 // @Success 201 {object} ds.AddCityResp
@@ -241,7 +240,7 @@ func (h *Handler) AddCity(ctx *gin.Context) {
 		return
 	}
 	cityName := ctx.Request.FormValue("city_name")
-	statusID := ctx.Request.FormValue("status_id")
+	statusID := "1"
 	description := ctx.Request.FormValue("description")
 	intStatus, errStatusInt := strconv.Atoi(statusID)
 	if errStatusInt != nil {

@@ -129,13 +129,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "ID статуса города",
-                        "name": "status_id",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
                         "type": "string",
                         "description": "Описание города",
                         "name": "description",
