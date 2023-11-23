@@ -179,6 +179,12 @@ func (h *Handler) DeleteHike(ctx *gin.Context) {
 // @Failure 500 {object} errorResp "Внутренняя ошибка сервера"
 // @Router /api/v3/hikes/update/status-for-user [put]
 func (h *Handler) UpdateStatusForUser(ctx *gin.Context) {
+	userID, existsUser := ctx.Get("user_id")
+	if !existsUser {
+		h.errorHandler(ctx, http.StatusUnauthorized, errors.New("not fount `user_id` or `user_role`"))
+		return
+	}
+
 	var body struct {
 		StatusID uint `json:"status_id"`
 	}
@@ -193,7 +199,7 @@ func (h *Handler) UpdateStatusForUser(ctx *gin.Context) {
 		return
 	}
 
-	HikeID, err := h.Repository.HikeBasketId()
+	HikeID, err := h.Repository.HikeBasketId(userID.(uint))
 	if err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, errors.New("basket is not created"))
 		return

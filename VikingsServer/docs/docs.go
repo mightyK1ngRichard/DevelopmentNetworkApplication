@@ -21,6 +21,11 @@ const docTemplate = `{
     "paths": {
         "/api/v3/cities": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Получение города(-ов) и фильтрация при поиске",
                 "produces": [
                     "application/json"

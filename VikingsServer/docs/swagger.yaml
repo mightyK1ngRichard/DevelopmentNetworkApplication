@@ -378,6 +378,8 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/handler.errorResp'
+      security:
+      - ApiKeyAuth: []
       summary: Список городов
       tags:
       - Города

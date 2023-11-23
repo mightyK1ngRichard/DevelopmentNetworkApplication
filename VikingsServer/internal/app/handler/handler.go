@@ -20,7 +20,7 @@ const (
 	cities          = baseURL + "/cities"
 	addCityIntoHike = baseURL + "/cities/add-city-into-hike"
 	addCityImage    = baseURL + "/cities/upload-image"
-	deleteCityReact = baseURL + "/api/v3/cities/delete/:id"
+	deleteCityReact = baseURL + "/cities/delete/:id"
 
 	hikes                        = baseURL + "/hikes"
 	hikesByID                    = baseURL + "/hikes/:id"
@@ -66,12 +66,12 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 }
 
 func (h *Handler) CityCRUD(router *gin.Engine) {
-	router.GET(cities, h.CitiesList)
+	router.GET(cities, h.WithoutJWTError(role.Buyer, role.Moderator, role.Admin), h.CitiesList)
 	router.POST(cities, h.WithAuthCheck(role.Moderator, role.Admin), h.AddCity)
 	router.PUT(addCityImage, h.AddImage)
 	router.PUT(cities, h.WithAuthCheck(role.Moderator, role.Admin), h.UpdateCity)
 	router.DELETE(cities, h.WithAuthCheck(role.Moderator, role.Admin), h.DeleteCity)
-	router.POST(addCityIntoHike, h.WithAuthCheck(role.Moderator, role.Admin), h.AddCityIntoHike)
+	router.POST(addCityIntoHike, h.WithAuthCheck(role.Buyer, role.Moderator, role.Admin), h.AddCityIntoHike)
 	router.Use(cors.Default()).DELETE(deleteCityReact, h.DeleteCityWithParam)
 }
 
