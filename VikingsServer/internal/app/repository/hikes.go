@@ -21,10 +21,12 @@ func (r *Repository) HikesList(statusID string, startDate time.Time, endDate tim
 }
 
 func (r *Repository) AddCityIntoHike(cityID uint, userID uint, serialNumber int) (uint, error) {
-	hikeID, err := r.HikeBasketId()
-
-	/// Корзины нет. Создадим заявку
+	hikeID, err := r.HikeBasketId(userID)
 	if err != nil {
+		return 0, err
+	}
+	/// Корзины нет. Создадим заявку
+	if hikeID == 0 {
 		newHike := ds.Hike{
 			UserID:      userID,
 			DateCreated: time.Now(),
@@ -53,9 +55,14 @@ func (r *Repository) AddCityIntoHike(cityID uint, userID uint, serialNumber int)
 	return dh.ID, r.AddDestinationToHike(&dh)
 }
 
-func (r *Repository) HikeBasketId() (uint, error) {
+func (r *Repository) HikeBasketId(userId uint) (uint, error) {
 	var hike ds.Hike
-	result := r.db.Preload("Status").Where("status_id = ?", 1).First(&hike)
+	result := r.db.Preload("Status").
+		Where("status_id = ? AND user_id = ?", 1, userId).
+		First(&hike)
+	if result.RowsAffected == 0 {
+		return 0, nil
+	}
 	return hike.ID, result.Error
 }
 

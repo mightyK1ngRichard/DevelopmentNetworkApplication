@@ -13,6 +13,7 @@ import (
 
 // CitiesList godoc
 // @Summary Список городов
+// @Security ApiKeyAuth
 // @Description Получение города(-ов) и фильтрация при поиске
 // @Tags Города
 // @Produce json
@@ -27,14 +28,23 @@ func (h *Handler) CitiesList(ctx *gin.Context) {
 		cityById(ctx, h, idStr)
 		return
 	}
-
 	cities, err := h.Repository.CitiesList()
 	if err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
-	basketId, _ := h.Repository.HikeBasketId()
+	userID, existsUser := ctx.Get("user_id")
+	var basketIdRes uint = 0
+	if existsUser {
+		basketId, errBask := h.Repository.HikeBasketId(userID.(uint))
+		if errBask != nil {
+			h.errorHandler(ctx, http.StatusInternalServerError, errBask)
+			return
+		}
+		basketIdRes = basketId
+	}
+
 	searchText := ctx.Query("search")
 	if searchText != "" {
 		var filteredCities []ds.City
@@ -47,7 +57,7 @@ func (h *Handler) CitiesList(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
 			"status":    "success",
 			"cities":    filteredCities,
-			"basket_id": basketId,
+			"basket_id": basketIdRes,
 		})
 		return
 	}
@@ -56,7 +66,7 @@ func (h *Handler) CitiesList(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"status":    "success",
 		"cities":    cities,
-		"basket_id": basketId,
+		"basket_id": basketIdRes,
 	})
 }
 
@@ -112,7 +122,7 @@ func (h *Handler) AddCityIntoHike(ctx *gin.Context) {
 		h.errorHandler(ctx, http.StatusUnauthorized, errors.New("user_id not found"))
 		return
 	}
-	//userID = 1 // TODO: Это хакдкод лабы 3
+
 	userIDUint, ok := userID.(uint)
 	if !ok {
 		h.errorHandler(ctx, http.StatusUnauthorized, errors.New("`user_id` must be uint number"))
