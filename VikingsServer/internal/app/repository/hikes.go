@@ -77,15 +77,15 @@ func (r *Repository) HikeByID(id uint) (*ds.Hike, error) {
 	return &hike, result.Error
 }
 
-func (r *Repository) HikeByUserID(userID string) (*ds.Hike, error) {
-	hike := ds.Hike{}
+func (r *Repository) HikeByUserID(userID string) (*[]ds.Hike, error) {
+	var hikes []ds.Hike
 	result := r.db.Preload("User").
 		Preload("DestinationHikes.Hike.Status").
 		Preload("DestinationHikes.Hike.User").
 		Preload("DestinationHikes.City.Status").
 		Preload("Status").
 		Where("user_id = ?", userID).
-		First(&hike)
+		Find(&hikes)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil
@@ -93,7 +93,7 @@ func (r *Repository) HikeByUserID(userID string) (*ds.Hike, error) {
 			return nil, result.Error
 		}
 	}
-	return &hike, result.Error
+	return &hikes, result.Error
 }
 
 func (r *Repository) AddHike(hike *ds.Hike) error {
@@ -155,6 +155,9 @@ func (r *Repository) UpdateHike(updatedHike *ds.Hike) error {
 	if updatedHike.DateStartHike.String() != utils.EmptyDate {
 		oldHike.DateStartHike = updatedHike.DateStartHike
 	}
+	if updatedHike.Leader != "" {
+		oldHike.Leader = updatedHike.Leader
+	}
 	if updatedHike.UserID != 0 {
 		oldHike.UserID = updatedHike.UserID
 	}
@@ -162,8 +165,6 @@ func (r *Repository) UpdateHike(updatedHike *ds.Hike) error {
 		oldHike.Description = updatedHike.Description
 	}
 
-	/// Меняем статус заявки на ожидания апрува модератора после редактирования
-	oldHike.StatusID = 2
 	*updatedHike = oldHike
 	result := r.db.Save(updatedHike)
 	return result.Error

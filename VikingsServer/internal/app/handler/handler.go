@@ -62,6 +62,7 @@ func (h *Handler) RegisterHandler(router *gin.Engine) {
 	h.UserCRUD(router)
 	h.CityCRUD(router)
 	h.HikeCRUD(router)
+	h.DestinationHikesCRUD(router)
 	registerStatic(router)
 }
 
@@ -91,9 +92,9 @@ func (h *Handler) UserCRUD(router *gin.Engine) {
 }
 
 func (h *Handler) DestinationHikesCRUD(router *gin.Engine) {
-	router.GET(destinationHikes, h.DestinationHikesList)
-	router.POST(destinationHikes, h.AddDestinationToHike)
-	router.PUT(destinationHikes, h.UpdateDestinationHikeNumber)
+	//router.GET(destinationHikes, h.DestinationHikesList)
+	//router.POST(destinationHikes, h.AddDestinationToHike)
+	router.PUT(destinationHikes, h.WithoutJWTError(role.Buyer, role.Moderator, role.Admin), h.UpdateDestinationHikeNumber)
 	router.DELETE(destinationHikes, h.DeleteDestinationToHike)
 }
 
@@ -104,9 +105,9 @@ func registerStatic(router *gin.Engine) {
 }
 
 func registerFrontHeaders(ctx *gin.Context) {
-	ctx.Header("Access-Control-Allow-Origin", "http://localhost:5173")
-	ctx.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
-	ctx.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	//ctx.Header("Access-Control-Allow-Origin", "http://localhost:5173")
+	//ctx.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+	//ctx.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
 }
 
 // MARK: - Error handler

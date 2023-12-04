@@ -93,12 +93,13 @@ func (h *Handler) HikesListByID(ctx *gin.Context) {
 }
 
 func (h *Handler) hikeByUserId(ctx *gin.Context, userID string) {
-	hike, errDB := h.Repository.HikeByUserID(userID)
+	hikes, errDB := h.Repository.HikeByUserID(userID)
 	if errDB != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, errDB)
 		return
 	}
-	h.successHandler(ctx, "hike", hike)
+
+	h.successHandler(ctx, "hikes", hikes)
 }
 
 func hikeById(ctx *gin.Context, h *Handler, hikeStringID string) {
@@ -273,6 +274,7 @@ func (h *Handler) UpdateHike(ctx *gin.Context) {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
 		return
 	}
+
 	if updatedHike.ID == 0 {
 		h.errorHandler(ctx, http.StatusBadRequest, idNotFound)
 		return
