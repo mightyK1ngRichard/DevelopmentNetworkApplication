@@ -84,7 +84,7 @@ func (r *Repository) HikeByUserID(userID string) (*[]ds.Hike, error) {
 		Preload("DestinationHikes.Hike.User").
 		Preload("DestinationHikes.City.Status").
 		Preload("Status").
-		Where("user_id = ?", userID).
+		Where("user_id = ? AND status_id != 5", userID).
 		Find(&hikes)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {

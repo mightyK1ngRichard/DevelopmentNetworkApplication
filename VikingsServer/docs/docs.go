@@ -1118,7 +1118,10 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "hikes": {
-                    "$ref": "#/definitions/ds.Hike"
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ds.Hike"
+                    }
                 },
                 "status": {
                     "type": "string"
@@ -1146,6 +1149,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                },
+                "user_name": {
                     "type": "string"
                 }
             }
