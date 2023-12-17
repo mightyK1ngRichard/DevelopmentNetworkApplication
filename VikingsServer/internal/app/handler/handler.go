@@ -23,6 +23,7 @@ const (
 	deleteCityReact = baseURL + "/cities/delete/:id"
 
 	hikes                        = baseURL + "/hikes"
+	hikeCurrent                  = baseURL + "/hikes/current"
 	hikesByID                    = baseURL + "/hikes/:id"
 	hikeUpdateStatusForModerator = baseURL + "/hikes/update/status-for-moderator"
 	hikeUpdateStatusForUser      = baseURL + "/hikes/update/status-for-user"
@@ -78,7 +79,8 @@ func (h *Handler) CityCRUD(router *gin.Engine) {
 
 func (h *Handler) HikeCRUD(router *gin.Engine) {
 	router.GET(hikes, h.WithAuthCheck(role.Buyer, role.Moderator, role.Admin), h.HikesList)
-	router.GET(hikesByID, h.HikesListByID)
+	router.GET(hikesByID, h.WithAuthCheck(role.Buyer, role.Moderator, role.Admin), h.HikesListByID)
+	router.GET(hikeCurrent, h.WithAuthCheck(role.Buyer, role.Moderator, role.Admin), h.HikeCurrent)
 	router.DELETE(hikes, h.WithAuthCheck(role.Buyer, role.Moderator, role.Admin), h.DeleteHike)
 	router.PUT(hikeUpdateStatusForModerator, h.WithAuthCheck(role.Moderator, role.Admin), h.UpdateStatusForModerator)
 	router.PUT(hikeUpdateStatusForUser, h.WithAuthCheck(role.Buyer, role.Moderator, role.Admin), h.UpdateStatusForUser)

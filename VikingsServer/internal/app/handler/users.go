@@ -109,6 +109,9 @@ func (h *Handler) Login(ctx *gin.Context) {
 			"expires_in":   cfg.JWT.ExpiresIn,
 			"access_token": strToken,
 			"token_type":   "Bearer",
+			"role":         user.Role,
+			"userName":     user.UserName,
+			"userImage":    user.ImageURL,
 		})
 		return
 	}

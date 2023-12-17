@@ -57,10 +57,7 @@ func (h *Handler) HikesList(ctx *gin.Context) {
 		h.errorHandler(ctx, http.StatusBadRequest, errors.New("incorrect `start_date` or `end_date`"))
 		return
 	}
-	if statusID == "" {
-		statusID = "3"
-	}
-	if isOk := utils.Contains([]string{"1", "2", "3", "4"}, statusID); !isOk {
+	if isOk := utils.Contains([]string{"", "1", "2", "3", "4"}, statusID); !isOk {
 		h.errorHandler(ctx, http.StatusBadRequest, errors.New("param `status_id` not contains into [1, 2, 3, 4]"))
 		return
 	}
@@ -231,6 +228,12 @@ func (h *Handler) UpdateStatusForModerator(ctx *gin.Context) {
 		HikeID   uint `json:"hike_id"`
 		StatusID uint `json:"status_id"`
 	}
+	userIDStr, existsUser := ctx.Get("user_id")
+	if !existsUser {
+		h.errorHandler(ctx, http.StatusUnauthorized, errors.New("not fount `user_id` or `user_role`"))
+		return
+	}
+	userID := userIDStr.(uint)
 
 	if err := ctx.BindJSON(&body); err != nil {
 		h.errorHandler(ctx, http.StatusBadRequest, err)
@@ -242,7 +245,7 @@ func (h *Handler) UpdateStatusForModerator(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.Repository.UpdateHikeForModerator(body.HikeID, body.StatusID); err != nil {
+	if err := h.Repository.UpdateHikeForModerator(body.HikeID, body.StatusID, userID); err != nil {
 		h.errorHandler(ctx, http.StatusInternalServerError, err)
 		return
 	}
@@ -311,68 +314,18 @@ func (h *Handler) UpdateHike(ctx *gin.Context) {
 	})
 }
 
-// MARK: - OLD CODE
-
-func (h *Handler) AddHike(ctx *gin.Context) {
-	var hike ds.Hike
-	if err := ctx.BindJSON(&hike); err != nil {
-		h.errorHandler(ctx, http.StatusBadRequest, err)
+func (h *Handler) HikeCurrent(ctx *gin.Context) {
+	userID, existsUser := ctx.Get("user_id")
+	if !existsUser {
+		h.errorHandler(ctx, http.StatusUnauthorized, errors.New("not fount `user_id` or `user_role`"))
 		return
 	}
 
-	if errorCode, err := h.createHike(&hike); err != nil {
-		h.errorHandler(ctx, errorCode, err)
+	hikes, errDB := h.Repository.HikeBasketId(userID.(uint))
+	if errDB != nil {
+		h.errorHandler(ctx, http.StatusInternalServerError, errDB)
 		return
 	}
 
-	h.successAddHandler(ctx, "hike_id", hike.ID)
-}
-
-func (h *Handler) createHike(hike *ds.Hike) (int, error) {
-	if hike.ID != 0 {
-		return http.StatusBadRequest, idMustBeEmpty
-	}
-	if err := h.Repository.AddHike(hike); err != nil {
-		return http.StatusInternalServerError, err
-	}
-	return 0, nil
-}
-
-func (h *Handler) UpdateHikeStatus(ctx *gin.Context) {
-	var updatedHike ds.Hike
-	if err := ctx.BindJSON(&updatedHike); err != nil {
-		h.errorHandler(ctx, http.StatusBadRequest, err)
-		return
-	}
-	if updatedHike.ID != 0 ||
-		updatedHike.HikeName != "" ||
-		updatedHike.DateCreated.String() != utils.EmptyDate ||
-		updatedHike.DateEnd.String() != utils.EmptyDate ||
-		updatedHike.DateStartOfProcessing.String() != utils.EmptyDate ||
-		updatedHike.DateApprove.String() != utils.EmptyDate ||
-		updatedHike.DateStartHike.String() != utils.EmptyDate ||
-		updatedHike.UserID != 0 ||
-		updatedHike.Description != "" ||
-		updatedHike.Leader != "" {
-		h.errorHandler(ctx, http.StatusBadRequest, mustBeJustStatus)
-		return
-	}
-
-	if err := h.Repository.UpdateHike(&updatedHike); err != nil {
-		h.errorHandler(ctx, http.StatusInternalServerError, err)
-		return
-	}
-
-	h.successHandler(ctx, "updated_hike", gin.H{
-		"id":                       updatedHike.ID,
-		"hike_name":                updatedHike.HikeName,
-		"date_created":             updatedHike.DateCreated,
-		"date_end":                 updatedHike.DateEnd,
-		"date_start_of_processing": updatedHike.DateStartOfProcessing,
-		"date_approve":             updatedHike.DateApprove,
-		"date_start_hike":          updatedHike.DateStartHike,
-		"user_id":                  updatedHike.UserID,
-		"status_id":                updatedHike.StatusID,
-		"description":              updatedHike.Description,
-	})
+	h.successHandler(ctx, "hikes", hikes)
 }
