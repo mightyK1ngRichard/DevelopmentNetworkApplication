@@ -14,6 +14,7 @@ type LoginResp struct {
 }
 
 type RegisterReq struct {
+	Name     string `json:"user_name"`
 	Login    string `json:"login"`
 	Password string `json:"password"`
 }

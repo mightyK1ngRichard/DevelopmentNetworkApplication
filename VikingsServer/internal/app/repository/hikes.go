@@ -10,6 +10,18 @@ import (
 
 func (r *Repository) HikesList(statusID string, startDate time.Time, endDate time.Time) (*[]ds.Hike, error) {
 	var hikes []ds.Hike
+	if statusID == "" {
+		result := r.db.Preload("Status").
+			Preload("DestinationHikes.City.Status").
+			Preload("DestinationHikes.Hike.Status").
+			Preload("User").
+			Preload("Status").
+			Preload("Moderator").
+			Where("status_id != 5 AND date_start_of_processing BETWEEN ? AND ?", startDate, endDate).
+			Find(&hikes)
+		return &hikes, result.Error
+	}
+
 	result := r.db.Preload("Status").
 		Preload("DestinationHikes.City.Status").
 		Preload("DestinationHikes.Hike.Status").
@@ -25,12 +37,14 @@ func (r *Repository) AddCityIntoHike(cityID uint, userID uint, serialNumber int)
 	if err != nil {
 		return 0, err
 	}
+
 	/// Корзины нет. Создадим заявку
 	if hikeID == 0 {
 		newHike := ds.Hike{
 			UserID:      userID,
 			DateCreated: time.Now(),
 			StatusID:    1,
+			ModeratorID: nil,
 		}
 		if errCreate := r.db.Create(&newHike).Error; errCreate != nil {
 			return 0, errCreate
@@ -77,15 +91,16 @@ func (r *Repository) HikeByID(id uint) (*ds.Hike, error) {
 	return &hike, result.Error
 }
 
-func (r *Repository) HikeByUserID(userID string) (*ds.Hike, error) {
-	hike := ds.Hike{}
+func (r *Repository) HikeByUserID(userID string) (*[]ds.Hike, error) {
+	var hikes []ds.Hike
 	result := r.db.Preload("User").
 		Preload("DestinationHikes.Hike.Status").
 		Preload("DestinationHikes.Hike.User").
+		Preload("Moderator").
 		Preload("DestinationHikes.City.Status").
 		Preload("Status").
-		Where("user_id = ?", userID).
-		First(&hike)
+		Where("user_id = ? AND status_id != 5", userID).
+		Find(&hikes)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil
@@ -93,7 +108,7 @@ func (r *Repository) HikeByUserID(userID string) (*ds.Hike, error) {
 			return nil, result.Error
 		}
 	}
-	return &hike, result.Error
+	return &hikes, result.Error
 }
 
 func (r *Repository) AddHike(hike *ds.Hike) error {
@@ -120,13 +135,14 @@ func (r *Repository) UpdateStatusForUser(hikeID uint, newStatusID uint) error {
 	return r.db.Save(&updatedHike).Error
 }
 
-func (r *Repository) UpdateHikeForModerator(hikeID uint, newStatusID uint) error {
+func (r *Repository) UpdateHikeForModerator(hikeID uint, newStatusID uint, userID uint) error {
 	updatedHike := ds.Hike{}
 	if result := r.db.First(&updatedHike, hikeID); result.Error != nil {
 		return result.Error
 	}
 	updatedHike.StatusID = newStatusID
 	updatedHike.DateApprove = time.Now()
+	updatedHike.ModeratorID = &userID
 	return r.db.Save(&updatedHike).Error
 }
 
@@ -155,6 +171,9 @@ func (r *Repository) UpdateHike(updatedHike *ds.Hike) error {
 	if updatedHike.DateStartHike.String() != utils.EmptyDate {
 		oldHike.DateStartHike = updatedHike.DateStartHike
 	}
+	if updatedHike.Leader != "" {
+		oldHike.Leader = updatedHike.Leader
+	}
 	if updatedHike.UserID != 0 {
 		oldHike.UserID = updatedHike.UserID
 	}
@@ -162,8 +181,6 @@ func (r *Repository) UpdateHike(updatedHike *ds.Hike) error {
 		oldHike.Description = updatedHike.Description
 	}
 
-	/// Меняем статус заявки на ожидания апрува модератора после редактирования
-	oldHike.StatusID = 2
 	*updatedHike = oldHike
 	result := r.db.Save(updatedHike)
 	return result.Error

@@ -129,3 +129,13 @@ func (h *Handler) AddDestinationToHike(ctx *gin.Context) {
 
 	h.successAddHandler(ctx, "updated_destination_hike", destinationHike)
 }
+
+func (h *Handler) createHike(hike *ds.Hike) (int, error) {
+	if hike.ID != 0 {
+		return http.StatusBadRequest, idMustBeEmpty
+	}
+	if err := h.Repository.AddHike(hike); err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return 0, nil
+}

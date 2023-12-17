@@ -5,6 +5,7 @@ import (
 	"VikingsServer/internal/app/role"
 	"crypto/sha1"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
@@ -42,6 +43,7 @@ func (h *Handler) Register(ctx *gin.Context) {
 	}
 
 	if err = h.Repository.Register(&ds.User{
+		UserName: req.Name,
 		Role:     role.Buyer,
 		Login:    req.Login,
 		Password: generateHashString(req.Password),
@@ -103,14 +105,18 @@ func (h *Handler) Login(ctx *gin.Context) {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, ds.LoginResp{
-			ExpiresIn:   cfg.JWT.ExpiresIn,
-			AccessToken: strToken,
-			TokenType:   "Bearer",
+		ctx.JSON(http.StatusOK, gin.H{
+			"expires_in":   cfg.JWT.ExpiresIn,
+			"access_token": strToken,
+			"token_type":   "Bearer",
+			"role":         user.Role,
+			"userName":     user.UserName,
+			"userImage":    user.ImageURL,
 		})
+		return
 	}
 
-	ctx.AbortWithStatus(http.StatusForbidden)
+	h.errorHandler(ctx, http.StatusBadRequest, errors.New("incorrect login or password"))
 }
 
 func (h *Handler) UsersList(ctx *gin.Context) {

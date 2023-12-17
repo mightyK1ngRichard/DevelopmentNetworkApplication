@@ -7,7 +7,7 @@ type HikesListRes struct {
 
 type HikesListRes2 struct {
 	Status string `json:"status"`
-	Hikes  Hike   `json:"hikes"`
+	Hikes  []Hike `json:"hikes"`
 }
 
 type DeleteDestinationToHikeReq struct {
