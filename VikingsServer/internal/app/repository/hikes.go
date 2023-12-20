@@ -17,7 +17,7 @@ func (r *Repository) HikesList(statusID string, startDate time.Time, endDate tim
 			Preload("User").
 			Preload("Status").
 			Preload("Moderator").
-			Where("status_id != 5 AND date_start_of_processing BETWEEN ? AND ?", startDate, endDate).
+			Where("status_id != 5 AND status_id != 1 AND date_start_of_processing BETWEEN ? AND ?", startDate, endDate).
 			Find(&hikes)
 		return &hikes, result.Error
 	}
