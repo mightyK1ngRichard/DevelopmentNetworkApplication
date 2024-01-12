@@ -1075,6 +1075,12 @@ const docTemplate = `{
                 "leader": {
                     "type": "string"
                 },
+                "moderator": {
+                    "$ref": "#/definitions/ds.User"
+                },
+                "moderator_id": {
+                    "type": "integer"
+                },
                 "status": {
                     "$ref": "#/definitions/ds.HikeStatus"
                 },
